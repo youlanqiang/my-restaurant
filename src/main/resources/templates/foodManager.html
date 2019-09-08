@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>菜品管理</title>
+    <link href="https://cdn.bootcss.com/element-ui/2.11.1/theme-chalk/index.css" rel="stylesheet">
+    <script src="/js/jquery.js"></script>
+    <script src="/js/vue.js"></script>
+    <script src="https://cdn.bootcss.com/element-ui/2.11.1/index.js"></script>
+     <script src="/js/decimal.js"></script>
+    <script src="/js/config.js"></script>
+     <style>
+    .avatar-uploader .el-upload {
+      border: 1px dashed #d9d9d9;
+      border-radius: 6px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .avatar-uploader .el-upload:hover {
+      border-color: #409EFF;
+    }
+
+    .avatar-uploader-icon {
+      font-size: 28px;
+      color: #8c939d;
+      width: 178px;
+      height: 178px;
+      line-height: 178px;
+      text-align: center;
+    }
+
+    .avatar {
+      width: 178px;
+      height: 178px;
+      display: block;
+    }
+
+    .user-search {
+      margin-top: 20px;
+    }
+    html,body,#app,.el-container{
+        /*设置内部填充为0，几个布局元素之间没有间距*/
+        padding: 0px;
+         /*外部间距也是如此设置*/
+        margin: 0px;
+        /*统一设置高度为100%*/
+        height: 100%;
+    }
+    .your_class {
+    width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+[v-cloak] {
+   display:none;
+}
+    </style>
+</head>
+
+<body>
+<div id="app" v-cloak>
+    <el-container>
+        <div th:include="template::controller"></div>
+
+        <el-main>
+
+            <el-form :inline="true" class="user-search">
+                <el-form-item label="搜索：">
+                    <el-input size="small" v-model="name" placeholder="输入名称"></el-input>
+                </el-form-item>
+                <el-form-item label="分类">
+                    <el-select v-model="cid" placeholder="请选择">
+                        <el-option :value="0" label="全部"></el-option>
+                        <el-option v-for="item in classList" :key="item.id" :label="item.name" :value="item.id">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item>
+                    <el-button @click="currentChange(app.current)">查 询</el-button>
+                    <el-button type="primary" @click="showAddDialog">添 加</el-button>
+                    <el-button type="primary" @click="showClassTableDialog">分类管理</el-button>
+                </el-form-item>
+            </el-form>
+
+            <el-table   size="small" :data="list" highlight-current-row border style="width: 100%;">
+                <el-table-column fixed prop="id" label="id" >
+                </el-table-column>
+                <el-table-column prop="foodName" label="名称">
+                </el-table-column>
+                <el-table-column label="图片" >
+                    <template slot-scope="scope">
+                        <el-image style="width: 70px; height: 70px" :src="http+'/file/get/'+scope.row.imgPath"
+                                  fit="fill">
+                        </el-image>
+                    </template>
+                </el-table-column>
+                <el-table-column  :show-overflow-tooltip="true"  prop="foodInfo" label="简介" >
+                </el-table-column>
+                <el-table-column prop="discount" label="折扣" >
+                </el-table-column>
+                <el-table-column prop="formatSinglePrice" label="单价">
+                </el-table-column>
+                <el-table-column prop="formatRealPrice" label="折后单价" >
+                </el-table-column>
+                <el-table-column label="分类" >
+                    <template slot-scope="scope">
+                        <el-tag @close="deleteFoodClass(scope.row.id, item.id)" :disable-transitions="false"
+                                v-for="item in scope.row.classifications" :key="item.id" closable type="success">
+                            {{item.name}}
+                        </el-tag>
+                    </template>
+                </el-table-column>
+                <el-table-column fixed="right" label="操作" >
+                    <template slot-scope="scope">
+                        <el-button type="text" @click="showAddClassDialog(scope.row.id)" size="small">添加分类</el-button>
+                        <el-button type="text" @click="showUpDialog(scope.row.id)" size="small">查看</el-button>
+                        <el-button type="text" @click="delFood(scope.row.id)" size="small">删除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <el-pagination layout="prev, pager, next" :total="total" :page-size="size" @current-change="currentChange">
+            </el-pagination>
+        </el-main>
+
+        <el-dialog top="5%" width="30%" title="菜品详情" :visible.sync="showUpdateDialog">
+            <el-form label-width="80px" :model="tempFood">
+                <el-form-item label="名称">
+                    <el-input size="small" v-model="tempFood.foodName" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="详情">
+                    <el-input size="small" type="textarea" :rows="2" placeholder="请输入内容" v-model="tempFood.foodInfo">
+                    </el-input>
+                </el-form-item>
+                <el-form-item label="折扣">
+                    <el-input-number v-model="tempFood.discount" :precision="1" :step="0.1" :min="0.1" size="mini"
+                                     :max="1">
+                    </el-input-number>
+                </el-form-item>
+                <el-form-item label="单价">
+                    <el-input size="small" v-model="tempFood.price" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="图片">
+                    <el-upload class="avatar-uploader" :action="http+'/file/upload'" :show-file-list="false"
+                               :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload">
+                        <img v-if="tempFood.imgPath" :src="http+'/file/get/'+ tempFood.imgPath" class="avatar">
+                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                    </el-upload>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="showUpdateDialog = false">取 消</el-button>
+                <el-button v-if="type == 0" type="primary" @click="updateFood">更 新</el-button>
+                <el-button v-else type="primary" @click="createFood">添 加</el-button>
+            </div>
+        </el-dialog>
+
+        <el-dialog width="60%" title="分类选择" :visible.sync="classDialog">
+            <el-main>
+                <el-col>
+                    <el-row :gutter="4">
+                        <el-col :span="6" v-for="(item, index) in classList">
+                            <el-card :body-style="{ padding: '0px' }" style="margin: 10px; ">
+                                <div style="padding: 14px;">
+                                    <p>{{item.name}}</p>
+                                    <div class="bottom clearfix">
+                                        <el-button @click="addClassForFood(item.id)" type="text" class="button">添加
+                                        </el-button>
+                                    </div>
+                                </div>
+                            </el-card>
+                        </el-col>
+                    </el-row>
+                </el-col>
+            </el-main>
+        </el-dialog>
+
+        <el-dialog width="40%" title="分类管理" :visible.sync="classTableDialog">
+            <div>
+                <el-main>
+
+                    <el-table max-height="400px" :data="classList" style="width: 100%">
+                        <el-table-column fixed prop="id" label="id">
+                        </el-table-column>
+                        <el-table-column prop="name" label="名称">
+                        </el-table-column>
+                        <el-table-column fixed="right" label="操作" width="200">
+                            <template slot-scope="scope">
+                                <el-button type="text" @click="delClass(scope.row.id)" size="small">删除</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+
+                </el-main>
+            </div>
+            <el-dialog width="40%" title="添加分类" :visible.sync="innerClassVisible" append-to-body>
+                <el-form label-width="80px" :model="tempClass">
+                    <el-form-item label="名称">
+                        <el-input size="small" v-model="tempClass.name" autocomplete="off"></el-input>
+                    </el-form-item>
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="innerClassVisible = false">取 消</el-button>
+                    <el-button @click="createClass" type="primary">添 加</el-button>
+                </div>
+            </el-dialog>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="classTableDialog = false">取 消</el-button>
+                <el-button @click="innerClassVisible = true" type="primary">添 加</el-button>
+            </div>
+        </el-dialog>
+
+
+    </el-container>
+
+</div>
+</body>
+<script>
+  var app = new Vue({
+    el: '#app',
+    data: {
+      innerClassVisible: false,
+      classList: [],
+      selectTempId: 0,
+      type: 0,
+      classTableDialog: false,
+      classDialog: false,
+      showUpdateDialog: false,
+      current: 1,
+      size: 10,
+      name: "",
+      cid: 0,
+      total: 0,
+      list: [],
+      tempClass: {
+        name: ""
+      },
+      tempFood: {
+        discount: 1,
+        foodInfo: "",
+        foodName: "",
+        id: 0,
+        imgPath: "",
+        price: 0
+      }
+    },
+    methods: {
+      createClass: function () {
+        $.ajax({
+          url: http + "/classification/add",
+          type: "post",
+          data: { name: app.tempClass.name },
+          xhrFields:{
+        withCredentials:true
+    },
+          success: function (req) {
+            if (req.code == 200) {
+              app.$message.success(req.msg);
+              app.getClassList();
+              app.innerClassVisible = false;
+            } else {
+              app.$message.error(req.msg);
+            }
+          }
+        })
+      },
+      delClass: function (cid) {
+        this.$confirm('是否删除?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          $.ajax({
+            url: http + "/classification/delete/" + cid,
+            type: "delete",
+            xhrFields:{
+        withCredentials:true
+    },
+            success: function (req) {
+              if (req.code == 200) {
+                app.$message.success(req.msg);
+                app.getClassList();
+              } else {
+                app.$message.error(req.msg);
+              }
+            }
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
+      },
+      showClassTableDialog: function () {
+        this.classTableDialog = true;
+      },
+      createFood: function () {
+        $.ajax({
+          url: http + "/food/add",
+          type: "post",
+          data: {
+            discount: app.tempFood.discount,
+            foodInfo: app.tempFood.foodInfo,
+            foodName: app.tempFood.foodName,
+            imgPath: app.tempFood.imgPath,
+            price: app.tempFood.price
+          },
+          xhrFields:{
+        withCredentials:true
+    },
+          success: function (req) {
+            if (req.code == 200) {
+              app.$message.success(req.msg);
+              app.currentChange(app.current);
+              app.showUpdateDialog = false;
+            } else {
+              app.$message.error(req.msg);
+            }
+          }
+        })
+      },
+      showAddDialog: function () {
+        this.type = 1;
+        this.showUpdateDialog = true;
+        this.tempFood = {
+          discount: 1,
+          foodInfo: "",
+          foodName: "",
+          id: 0,
+          imgPath: "",
+          price: 0
+        };
+
+      },
+      addClassForFood: function (cId) {
+        $.ajax({
+          url: http + "/food/add-class/" + app.selectTempId + "/" + cId,
+          type: "post",
+          xhrFields:{
+        withCredentials:true
+    },
+          success: function (req) {
+            if (req.code == 200) {
+              app.$message.success(req.msg);
+              app.currentChange(app.current);
+            } else {
+              app.$message.error(req.msg);
+            }
+          }
+        })
+      },
+      showAddClassDialog: function (id) {
+        this.selectTempId = id;
+        this.classDialog = true;
+      },
+      deleteFoodClass: function (foodId, cid) {
+        this.$confirm('是否删除?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          $.ajax({
+            url: http + "/food/delete-class/" + foodId + "/" + cid,
+            type: "delete",
+            xhrFields:{
+        withCredentials:true
+    },
+            success: function (req) {
+              if (req.code == 200) {
+                app.$message.success(req.msg);
+                app.currentChange(app.current);
+              } else {
+                app.$message.error(req.msg);
+              }
+            }
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
+      },
+      updateFood: function () {
+        $.ajax({
+          url: http + "/food/update",
+          type: "post",
+          data: {
+            discount: app.tempFood.discount,
+            foodInfo: app.tempFood.foodInfo,
+            foodName: app.tempFood.foodName,
+            id: app.tempFood.id,
+            imgPath: app.tempFood.imgPath,
+            price: app.tempFood.price
+          },
+          xhrFields:{
+        withCredentials:true
+    },
+          success: function (req) {
+            if (req.code == 200) {
+              app.$message.success(req.msg);
+              app.currentChange(app.current);
+            } else {
+              app.$message.error(req.msg);
+            }
+          }
+        })
+      },
+      handleAvatarSuccess: function (res) {
+        if (res.code == 200) {
+          this.tempFood.imgPath = res.data;
+        }
+      },
+      beforeAvatarUpload: function (file) {
+        var isJPG = file.type === 'image/jpeg';
+        var isLt2M = file.size / 1024 / 1024 < 2;
+
+        if (!isJPG) {
+          this.$message.error('上传头像图片只能是 JPG 格式!');
+        }
+        if (!isLt2M) {
+          this.$message.error('上传头像图片大小不能超过 2MB!');
+        }
+        return isJPG && isLt2M;
+      },
+      showUpDialog: function (id) {
+        $.ajax({
+          url: http + "/food/get/" + id,
+          type: "get",
+          xhrFields:{
+        withCredentials:true
+    },
+          success: function (req) {
+            if (req.code == 200) {
+              app.tempFood = req.data;
+              app.type = 0;
+              app.showUpdateDialog = true;
+            }
+          }
+        })
+      },
+      delFood: function (id) {
+        this.$confirm('是否删除?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          $.ajax({
+            url: http + "/food/delete/" + id,
+            type: "delete",
+            xhrFields:{
+        withCredentials:true
+    },
+            success: function (req) {
+              if (req.code == 200) {
+                app.$message.success(req.msg);
+                app.currentChange(app.current);
+              }
+            }
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
+
+      },
+      currentChange: function (current) {
+        this.getOrderPages(current, app.size, app.name, app.cid);
+      },
+      getOrderPages: function (current, size, name, cid) {
+
+        $.ajax({
+          url: http + "/food/page/" + current + "/" + size,
+          type: "get",
+          data: { name: name, cId: cid },
+          xhrFields:{
+        withCredentials:true
+    },
+          success: function (req) {
+            if (req.code == 200) {
+              app.current = req.data.current;
+              app.size = req.data.size;
+              app.total = req.data.total;
+              app.list = req.data.records;
+            }
+          }
+        })
+      },
+      getClassList: function () {
+        $.ajax({
+          url: http + "/classification/all",
+          type: "get",
+          success: function (req) {
+            if (req.code == 200) {
+              app.classList = req.data;
+            }
+          }
+        })
+      }
+    },
+    mounted: function () {
+
+      this.getOrderPages(1, 10, "", 0);
+      this.getClassList();
+    
+    }
+  })
+
+</script>
+
+</html>

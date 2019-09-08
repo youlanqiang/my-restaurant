@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>我的信息</title>
+    <link href="https://cdn.bootcss.com/element-ui/2.11.1/theme-chalk/index.css" rel="stylesheet">
+    <script src="/js/jquery.js"></script>
+    <script src="/js/vue.js"></script>
+    <script src="https://cdn.bootcss.com/element-ui/2.11.1/index.js"></script>
+    <script src="/js/decimal.js"></script>
+    <script src="/js/config.js"></script>
+
+
+     <style>
+        html,
+        body,
+        #app,
+        .el-container {
+            /*设置内部填充为0，几个布局元素之间没有间距*/
+            padding: 0px;
+            /*外部间距也是如此设置*/
+            margin: 0px;
+            /*统一设置高度为100%*/
+            height: 100%;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" v-cloak>
+        <el-container>
+            <div th:include="template::controller"></div>
+            <el-container>
+                <el-main>
+                    <el-form :model="user" label-width="80px">
+                        <el-form-item label="用户名">
+                            <el-input style="width:50%"  disabled v-model="user.username"></el-input>
+                        </el-form-item>
+                        <el-form-item label="电话号码">
+                            <el-input style="width:50%"  disabled v-model="user.telephone"></el-input>
+                        </el-form-item>
+                        <el-form-item label="邮箱">
+                            <el-input  style="width:50%"  disabled v-model="user.email"></el-input>
+                        </el-form-item>
+                        <el-form-item label="旧密码">
+                            <el-input  style="width:50%"  show-password v-model="oldpassword"></el-input>
+                        </el-form-item>
+                        <el-form-item label="新密码">
+                            <el-input style="width:50%"  show-password v-model="newpassword"></el-input>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button @click="changePassword">修改密码</el-button>
+                        </el-form-item>
+                    </el-form>
+
+
+                </el-main>
+            </el-container>
+        </el-container>
+    </div>
+</body>
+<script>
+    var app = new Vue({
+        el: "#app",
+        data: {
+            oldpassword: "",
+            newpassword: "",
+            passwordPattern: /^.*(?=.{6,})(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*? ]).*$/,
+            user: {}
+        },
+        methods: {
+            changePassword: function () {
+                if (!this.passwordPattern.test(app.oldpassword)) {
+                    app.$message.error('密码最少6位，包括至少1个大写字母，1个小写字母，1个数字，1个特殊字符');
+                    return;
+                }
+                if (!this.passwordPattern.test(app.newpassword)) {
+                    app.$message.error('密码最少6位，包括至少1个大写字母，1个小写字母，1个数字，1个特殊字符');
+                    return;
+                }
+                if (oldpassword == newpassword) {
+                    app.$message.error('密码不能相同');
+                    return;
+                }
+                $.ajax({
+                    url: http + "/user/change-password",
+                    type: "post",
+                    data: {
+                        newPassword: app.newpassword,
+                        oldPassword: app.oldpassword
+                    },
+                    success: function (req) {
+                        if (req.code == 200) {
+                            app.$message.success(req.msg);
+                        } else {
+                            app.$message.error(req.msg);
+                        }
+                    }
+                })
+            },
+            getUserMessage: function () {
+                $.ajax({
+                    url: http + "/user/info",
+                    type: "get",
+                    success: function (req) {
+                        if (req.code == 200) {
+                            app.user = req.data;
+                        }
+                    }
+                })
+            }
+        },
+        mounted: function () {
+            this.getUserMessage();
+        },
+    })
+
+</script>
+
+</html>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qjkji.orderproject.core.mapper.FoodMapper">
+
+<!--    IPage<Food> pageByNameAndClassId(-->
+<!--    @Param("name") String name,-->
+<!--    @Param("cId") Integer classificationId,-->
+<!--    IPage<Food> page);-->
+
+    <resultMap id="food" type="com.qjkji.orderproject.core.entity.Food">
+        <id  property="id" column="id"/>
+        <result property="discount" column="discount"/>
+        <result property="foodInfo" column="food_info"/>
+        <result property="foodName" column="food_name"/>
+        <result property="imgPath" column="img_path"/>
+        <result property="price" column="price"/>
+        <collection  property="classifications" ofType="com.qjkji.orderproject.core.entity.Classification">
+            <result  property="id" column="c_id" />
+            <result  property="name" column="c_name"/>
+        </collection>
+    </resultMap>
+
+    <select id="pageByNameAndClassId" resultMap="food">
+        SELECT a.*, c.id AS c_id, c.name AS c_name FROM food  AS a
+        LEFT JOIN food_class AS b ON a.id = b.food_id
+        LEFT JOIN classification AS c ON b.classification_id = c.id
+        <where>
+            <if test="name != null and name.trim() != ''">
+                a.food_name LIKE CONCAT('%',#{name},'%')
+            </if>
+            <if test="cId != 0">
+                AND b.classification_id = #{cId}
+            </if>
+            AND a.shop_name = #{shopName}
+        </where>
+        ORDER BY a.id DESC
+    </select>
+
+<!--    Food selectOneById(Integer id);-->
+    <select id="selectOneById" resultMap="food">
+        SELECT a.*, c.id AS c_id, c.name AS c_name FROM food  AS a
+        LEFT JOIN food_class AS b ON a.id = b.food_id
+        LEFT JOIN classification AS c ON b.classification_id = c.id
+        WHERE a.id = #{id}
+    </select>
+
+<!--    List<Food>  selectFoodsByCid(Integer cid);-->
+    <select id="selectFoodsByCid" resultMap="food" >
+        SELECT a.*, c.id AS c_id, c.name AS c_name FROM food  AS a
+        LEFT JOIN food_class AS b ON a.id = b.food_id
+        LEFT JOIN classification AS c ON b.classification_id = c.id
+        WHERE b.classification_id = #{cid}
+    </select>
+
+
+</mapper>

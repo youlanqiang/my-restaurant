@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qjkji.orderproject.core.mapper.StatisticsMapper">
+
+<!--    Integer selectNumberOfPeopleByDay(LocalDateTime dateTime);-->
+        <select id="selectNumberOfPeopleByDay"  resultType="integer">
+            SELECT SUM(number_of_people) FROM orders
+            WHERE payment_status = 1
+            AND TO_DAYS(end_date) = TO_DAYS(#{time})
+            AND shop_name = #{shopName}
+        </select>
+
+        <select id="selectNumberOfPeopleByYearWithMonth" resultType="integer">
+            SELECT SUM(number_of_people) FROM orders
+            WHERE payment_status = 1
+            AND YEAR(end_date) = YEAR(#{time})
+            AND MONTH(end_date) = MONTH(#{time})
+            AND shop_name = #{shopName}
+        </select>
+
+<!--    BigDecimal selectDecimalByDay(@Param("dateTime") LocalDateTime dateTime,
+        @Param("paymentType") Integer paymentType);-->
+
+
+        <select id="selectDecimalByDay" resultType="decimal">
+            SELECT SUM(payment_price) FROM orders
+            WHERE payment_status = 1  AND payment_type = #{paymentType}  AND TO_DAYS(end_date) = TO_DAYS(#{dateTime})
+            AND shop_name = #{shopName}
+        </select>
+
+<!--    BigDecimal selectDecimalByYearWithMonth(@Param("year") Integer year, @Param("month") Integer month,
+        @Param("paymentType") Integer paymentType);-->
+
+        <select id="selectDecimalByYearWithMonth" resultType="decimal">
+            SELECT SUM(payment_price) FROM orders
+            WHERE payment_status = 1
+            AND YEAR(end_date) = YEAR(#{time}) AND payment_type = #{paymentType}
+            AND MONTH(end_date) = MONTH(#{time})
+            AND shop_name = #{shopName}
+        </select>
+
+<!--    List<OrderFood> selectBestFoodByYearWithMonth(@Param("time") LocalDateTime time);-->
+        <select id="selectBestFoodByYearWithMonth" resultType="com.qjkji.orderproject.core.entity.OrderFood">
+            SELECT
+            b.food_id,
+            b.food_name,
+            SUM( b.amount ) AS amount
+            FROM
+            orders AS a
+            LEFT JOIN order_food AS b ON a.id = b.order_id
+            WHERE
+            a.payment_status = 1
+            AND b.return_status = 0
+            AND YEAR ( a.end_date ) = YEAR ( #{time} )
+            AND MONTH ( a.end_date ) = MONTH ( #{time} )
+            AND a.shop_name = #{shopName}
+            GROUP BY
+            b.food_id,
+            b.food_name
+            ORDER BY
+            amount DESC
+            LIMIT 5
+        </select>
+
+<!--    List<OrderFood> selectWorstFoodByYearWithMonth(@Param("time") LocalDateTime time);-->
+
+    <select id="selectWorstFoodByYearWithMonth" resultType="com.qjkji.orderproject.core.entity.OrderFood">
+        SELECT
+        b.food_id,
+        b.food_name,
+        SUM( b.amount ) AS amount
+        FROM
+        orders AS a
+        LEFT JOIN order_food AS b ON a.id = b.order_id
+        WHERE
+        a.payment_status = 1
+        AND b.return_status = 0
+        AND YEAR ( a.end_date ) = YEAR ( #{time} )
+        AND MONTH ( a.end_date ) = MONTH ( #{time} )
+        AND a.shop_name = #{shopName}
+        GROUP BY
+        b.food_id,
+        b.food_name
+        ORDER BY
+        amount
+        LIMIT 5
+    </select>
+
+
+
+
+</mapper>

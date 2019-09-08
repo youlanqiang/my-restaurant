@@ -1,0 +1,48 @@
+#youlanqiang本地
+server:
+  port: 8181
+  servlet:
+    session:
+      timeout: 480m #8个小时
+
+spring:
+  thymeleaf:
+    cache: false
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/orderproject?autoReconnect=true&failOverReadOnly=false&characterEncoding=UTF-8&useSSL=false
+    username: root
+    password: root
+    hikari:
+      minimum-idle: 20
+      maximum-pool-size: 100
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+  mvc:
+    view:
+      prefix: /
+      suffix: .html
+  servlet:
+    multipart:
+      max-file-size: 100MB
+mybatis-plus:
+  mapper-locations: classpath*:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+file-path: /Users/youlanqiang/IdeaProjects/orderproject/file
+pay:
+  wxpay:
+    appID: wxc374aff1503a8b59
+    mchID: 1523919001
+    subMchId: 1527710801
+    key: Zbl57920180808000000000000000000
+    sandboxKey: xxx
+    certPath: /var/local/cert/apiclient_cert.p12
+    useSandbox: false
+  alipay:
+    gatewayUrl: https://openapi.alipaydev.com/gateway.do
+    appid: 2016091200495157
+    appPrivateKey: MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCGdEcPP36HAjiMqYdALfFtI703N2W7KQ/coDRJW3aw8j/dIZzPPIjuq9Na0aJI6t7hL8T2ZFON37nyrwdMaBodyeXxaA9SXQnWgEolvOcOl/9LpyqfdSjAgZEocBFXgwFaRzXIAgdCD9e4jsfhnsyCNFVAvcCd5XZTwRL0WgUo35ESfC0u+xauwYAgpGF0EU+58Q0xCh/ovfenTtmFjQGuTZbLxhXauF8XO31Gavv2loYC3aqKt09tiQlMDTzQijSe+Q5HL8TLSPJKI6cmnuRMNPO2TTOYXDcgU7gbGVR3vrptTQvr+zpMg4oBVp45wFyjdNSxgMHniesE1Ss697h3AgMBAAECggEAd3+K1HODOezwY5wcuB7dLzoPZq7WvMRe86BzOCuRTuzPc/L20n0j2rReUZ511MbitlNlg/NhC3wnYRjMrMztQUJ7GtZ4n6RPJRS6UdYVqbPP0+ZMDJLtWEMPx1frIdMudZVKqGudFcrM2JwV7GHds29dwf+j3PHe+8ti1EfZxBu9mqZjF7slFNDz71oSzX0f2ueXo5LKE0yv6vcJ0B8yrBk9yqVXlYKBiX8d4/xC46c3bBVLWpzbR9CCWqeAsUZBeNt6fo1q9lW3Z539Kil1aFOH2D58q8OoQBV18CDe3xIXmqgBGl4mCsfqDQfQe3O9lMKv2ES6j2A/TbfAdwUKwQKBgQC8VxTD46ASkZqdXoV4hbvoaRBonRYgS3nH/rjr6atjMcnAtdfVUCeI+twd7p/LJmYQ7gOuw/FQnOdRtASoqmgyXVtEataQbEEBtKaoqEc1R8ZCqtNTe1G2CAWzk7sFpkzKD2clqdJqADzUNBD6PxYC6SHLluA+dFCdL5kYGm1CVwKBgQC2wYNdeJjvSkjnni6igZdIxSAUOs9v+VuAR2kkr/L+ZPmvsxbW8iGFpnDk1qpr6glIoNp+7QpZGr4OTboBo9vOsDo6ziX6SpdHDRt5BM/AD/cgjsTLVjlTMIOcdIcM3Ir1BtQzl7H+0NT3YYpfdXDfHb6DtZGJKumZye9HW/Sm4QKBgQCbC1j11epNvv24dTqNOBKzxeITLNYtKdUMFh6nXwqPM0pyUYBng3+4XUNdhLaZJ3g4kagIdBexFCm9ceOv8fCrHX1nukf+Ro/RVqUoDLfqHbcR5MzpWYivwLTo20HH6donMTzpnX6xcpag3mfnio2VQdRnZEIgR+KhM7DlTcQKKwKBgQCLmM1LPK81OTzvDzj4EJ0KjOiwCywgkAyAtAtwZqXqBB9lQhsUHOfWOwjJA+AxhheJTrUXduEMpwy9yElor01bV+liuczwnsFnGG//xNkcEBXo3KUd3ML09H3TqH7wKBZMi+bTcfAYgFPskqkruX16MDIyUSLV7914B3OqwmbigQKBgGg7XGO8zXcDGz/beW2MVYovrx6CM+KcVPA1iKHMY99VaUX3qfSrtIKPjsa3FuS3XarTErZ6RD3M584Qosj05EINNLjhN6PubtFqAgF8wV+w3Ae2k4SOEW42G9q0wolLqJxN4XEyTPdGPQOll05xfZdTQ46qtOE1wu4yknzOXg20
+    alipayPublicKey: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAn+lO9ixtZcERT/hbSDa7Rs9Yn6PzhGRuNx2rgyzDQsUdsIZAI16xgkR1G/kjRbxhlMGezJ0fAp2ighApYH5fQIVoeYu9XIHVbaUgHyqGmNMR8PcDWrDUTCEHkR70oawca1aqOQaNF9Z9YIArEUbiLzdq0fEkr9lrGVb1B2mvY8I6ToRaheEv28vsEDSyrAzdZtnLv58Yj/EyDbXAyp8s+Kw0qAaZZ61eaDsl7mPZ4iOLze7NW+eTGNsnR12haYKJE14myU7G50FIuO7bN478SA9u8SjHjTbT195nJ38PTO1UAZGK+aUZkofGj1s8wKVa0zB6HziJZiTtlZPe4jjZtwIDAQAB
+#    returnUrl: http://www.youlanqiang.top/pay/alipay/return
+#    notifyUrl: http://www.youlanqiang.top/pay/alipay/notify

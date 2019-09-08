@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>统计信息</title>
+    <script src="/js/echarts.js"></script>
+    <link href="https://cdn.bootcss.com/element-ui/2.11.1/theme-chalk/index.css" rel="stylesheet">
+    <script src="/js/jquery.js"></script>
+    <script src="/js/vue.js"></script>
+    <script src="https://cdn.bootcss.com/element-ui/2.11.1/index.js"></script>
+    <script src="/js/decimal.js"></script>
+    <script src="/js/config.js"></script>
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+
+        html,
+        body,
+        #app,
+        .el-container {
+            /*设置内部填充为0，几个布局元素之间没有间距*/
+            padding: 0px;
+            /*外部间距也是如此设置*/
+            margin: 0px;
+            /*统一设置高度为100%*/
+            height: 100%;
+        }
+    </style>
+</head>
+<!-- 日收入，月收入，年收入
+日客流，月客流，年客流
+当月销量最佳top5,
+当月销量最差top5 -->
+
+<body>
+    <div id="app" v-cloak>
+        <el-container>
+            <div th:replace="template::controller"></div>
+            <el-container>
+                <el-main>
+                    <!-- 日消费统计 -->
+                    <el-form :inline="true" ref="form" label-width="140px">
+                        <el-form-item label="日消费统计">
+                            <el-date-picker v-model="dataValue" align="right" type="date" placeholder="选择日期"
+                                :picker-options="pickerOptions">
+                            </el-date-picker>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="getDayIncomeChart(dataValue)">查询</el-button>
+                        </el-form-item>
+                    </el-form>
+                    <div id="incomeChart" style="width: 100%; height: 50%"></div>
+
+                    <!-- 月消费统计 -->
+                    <el-form :inline="true" ref="form" label-width="140px">
+                        <el-form-item label="月消费统计">
+                            <el-date-picker v-model="incomeMonthValue" type="month" placeholder="选择月">
+                            </el-date-picker>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="getMonthIncomeChart(incomeMonthValue)">查询</el-button>
+                        </el-form-item>
+                    </el-form>
+                    <div id="incomeMonthChart" style="width: 100%; height: 50%"></div>
+
+                    <!-- 月客流量统计 -->
+                    <el-form :inline="true" ref="form" label-width="140px">
+                        <el-form-item label="月客流量统计">
+                            <el-date-picker v-model="clientValue" type="month" placeholder="选择月">
+                            </el-date-picker>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="getMonthClientChart(clientValue)">查询</el-button>
+                        </el-form-item>
+                    </el-form>
+                    <div id="clientChart" style="width: 100%; height: 50%"></div>
+
+
+
+                    <!-- 当月销售最差-->
+                    <el-form :inline="true" ref="form" label-width="140px">
+                        <el-form-item label="当月销售最差">
+                            <el-date-picker v-model="worstValue" type="month" placeholder="选择月">
+                            </el-date-picker>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="getMonthWorstFood(worstValue)">查询</el-button>
+                        </el-form-item>
+                    </el-form>
+                    <div id="worstChart" style="width: 100%; height: 50%"></div>
+
+
+                    <!-- 当月销售最佳 -->
+                    <el-form :inline="true" ref="form" label-width="140px">
+                        <el-form-item label="当月销售最佳">
+                            <el-date-picker v-model="bestValue" type="month" placeholder="选择月">
+                            </el-date-picker>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="getMonthBestFood(bestValue)">查询</el-button>
+                        </el-form-item>
+                    </el-form>
+                    <div id="bestChart" style="width: 100%; height: 50%"></div>
+
+
+
+
+                </el-main>
+            </el-container>
+        </el-container>
+    </div>
+</body>
+
+<script>
+    var app = new Vue({
+        el: "#app",
+        data: {
+            clientChart: '',
+            incomeChart: '',
+            incomeMonthChart: '',
+            worstChart: '',
+            bestChart: '',
+            incomeMonthValue: '',
+            worstValue: '',
+            bestValue: '',
+            dataValue: '',
+            clientValue: '',
+            pickerOptions: {
+                disabledDate: function (time) {
+                    return time.getTime() > Date.now();
+                },
+                shortcuts: [{
+                    text: '今天',
+                    onClick: function (picker) {
+                        picker.$emit('pick', new Date());
+                    }
+                }, {
+                    text: '昨天',
+                    onClick: function (picker) {
+                        var date = new Date();
+                        date.setTime(date.getTime() - 3600 * 1000 * 24);
+                        picker.$emit('pick', date);
+                    }
+                }, {
+                    text: '一周前',
+                    onClick: function (picker) {
+                        var date = new Date();
+                        date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
+                        picker.$emit('pick', date);
+                    }
+                }]
+            }
+        },
+        methods: {
+            getMonthBestFood:function(time){
+                $.ajax({
+                    url: http + "/statistics/best-sales",
+                    data: {
+                        year: time.getFullYear(),
+                        month: time.getMonth() + 1,
+                    },
+                    success: function (req) {
+                        if (req.code == 200) {
+                        
+                            app.initBestFoods(req.data);
+                        }
+                    }
+                })
+            },
+            getMonthWorstFood:function(time){
+                $.ajax({
+                    url: http + "/statistics/worst-sales",
+                    data: {
+                        year: time.getFullYear(),
+                        month: time.getMonth() + 1,
+                    },
+                    success: function (req) {
+                        if (req.code == 200) {
+                           
+                            app.initWorstFoods(req.data);
+                        }
+                    }
+                })
+            },
+            getMonthIncomeChart: function (time) {
+                $.ajax({
+                    url: http + "/statistics/month-income",
+                    data: {
+                        year: time.getFullYear(),
+                        month: time.getMonth() + 1,
+                    },
+                    success: function (req) {
+                        if (req.code == 200) {
+                            app.initIncomeMonth(req.data);
+                        }
+                    }
+                })
+            },
+            getMonthClientChart: function (time) {
+                $.ajax({
+                    url: http + "/statistics/month-client",
+                    data: {
+                        year: time.getFullYear(),
+                        month: time.getMonth() + 1,
+                    },
+                    success: function (req) {
+                        if (req.code == 200) {
+                            app.initClientMonth(req.data);
+                        }
+                    }
+                })
+
+            },
+            getDayIncomeChart: function (time) {
+                $.ajax({
+                    url: http + "/statistics/day-income",
+                    data: {
+                        year: time.getFullYear(),
+                        month: time.getMonth() + 1,
+                        day: time.getDate()
+                    },
+                    success: function (req) {
+                        if (req.code == 200) {
+                            app.initIncomeDay(req.data);
+                        }
+                    }
+                })
+            },
+            initBestFoods: function (obj) {
+
+                var option = {
+                    title: {
+                        text: '本月最佳销量',
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'shadow'
+                        }
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '3%',
+                        containLabel: true
+                    },
+                    xAxis: {
+                        type: 'value',
+                        boundaryGap: [0, 0.01]
+                    },
+                    yAxis: {
+                        type: 'category',
+                        data: obj.yAxis,
+                    },
+                    series: [
+                        {
+                            type: 'bar',
+                            data: obj.data,
+                        }
+                    ]
+                };
+                if (option && typeof option === "object") {
+                    this.bestChart.setOption(option, true);
+                }
+            },
+            initWorstFoods: function (obj) {
+                var option = {
+                    title: {
+                        text: '本月最差销量',
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'shadow'
+                        }
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '3%',
+                        containLabel: true
+                    },
+                    xAxis: {
+                        type: 'value',
+                        boundaryGap: [0, 0.01]
+                    },
+                    yAxis: {
+                        type: 'category',
+                        data: obj.yAxis,
+                    },
+                    series: [
+                        {
+                            type: 'bar',
+                            data: obj.data,
+                        }
+                    ]
+                };
+                if (option && typeof option === "object") {
+                    this.worstChart.setOption(option, true);
+                }
+
+
+            },
+            initClientMonth: function (obj) {
+                var option = {
+                    color: ['#3398DB'],
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                            type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                        }
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '3%',
+                        containLabel: true
+                    },
+                    xAxis: [
+                        {
+                            type: 'category',
+                            data: obj.xAxisData,
+                            axisTick: {
+                                alignWithLabel: true
+                            }
+                        }
+                    ],
+                    yAxis: [
+                        {
+                            type: 'value'
+                        }
+                    ],
+                    series: [
+                        {
+                            name: '客流量',
+                            type: 'bar',
+                            barWidth: '20%',
+                            data: obj.data,
+                            itemStyle: {
+                                normal: {
+                                    label: {
+                                        show: true, //开启显示
+                                        position: 'top', //在上方显示
+                                        textStyle: { //数值样式
+                                            color: 'black',
+                                            fontSize: 16
+                                        },
+                                        formatter: function (num) {
+                                            if (num.value > 0) {
+                                                return num.value;
+                                            } else {
+                                                return '';
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                };
+
+                if (option && typeof option === "object") {
+                    this.clientChart.setOption(option, true);
+                }
+            },
+            initIncomeMonth: function (obj) {
+
+
+                var option = {
+                    legend: {},
+                    tooltip: {},
+                    dataset: {
+                        source: obj,
+                    },
+                    xAxis: { type: 'category' },
+                    yAxis: {},
+                    // Declare several bar series, each will be mapped
+                    // to a column of dataset.source by default.
+                    series: [
+                        { type: 'bar' },
+                        { type: 'bar' },
+                        { type: 'bar' },
+                    ]
+                };
+                if (option && typeof option === "object") {
+                    this.incomeMonthChart.setOption(option, true);
+                }
+
+            },
+            initIncomeDay: function (obj) {
+                var total = new Decimal(0);
+                for (var i in obj.data) {
+                    var item = new Decimal(obj.data[i].value);
+                    total = total.add(item);
+                }
+
+                var option = {
+                    title: {
+                        zlevel: 0,
+                        text: [
+                            '{value|￥' + total + '}',
+                            '{name|总金额}',
+                        ].join('\n'),
+                        rich: {
+                            value: {
+                                color: '#303133',
+                                fontSize: 40,
+                                fontWeight: 'bold',
+                                lineHeight: 40,
+                            },
+                            name: {
+                                color: '#909399',
+                                lineHeight: 20
+                            },
+                        },
+                        top: 'center',
+                        left: '145',
+                        textAlign: 'center',
+                        textStyle: {
+                            rich: {
+                                value: {
+                                    color: '#303133',
+                                    fontSize: 40,
+                                    fontWeight: 'bold',
+                                    lineHeight: 40,
+                                },
+                                name: {
+                                    color: '#909399',
+                                    lineHeight: 20
+                                },
+                            },
+                        },
+                    },
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: "{a} <br/>{b}: {c} ({d}%)"
+                    },
+                    legend: {
+                        orient: 'vertical',
+                        left: 'right',
+                        bottom: '80px',
+                        data: obj.legendData,
+                    },
+                    series: [
+                        {
+                            name: '占比情况',
+                            type: 'pie',
+                            radius: ['50%', '70%'],
+                            avoidLabelOverlap: false,
+                            itemStyle: {
+                                normal: {
+                                    label: {
+                                        show: true,
+                                        formatter: '{b} : {c} ({d}%)'
+                                    },
+                                    labelLine: { show: true }
+                                }
+                            },
+                            data: obj.data,
+                        }
+                    ]
+                };
+
+                if (option && typeof option === "object") {
+                    this.incomeChart.setOption(option, true);
+                }
+
+            }
+        },
+        mounted: function () {
+            this.dataValue = new Date();
+            this.clientValue = new Date();
+            this.incomeMonthValue = new Date();
+            this.worstValue = new Date();
+            this.bestValue = new Date();
+
+
+            var dom = document.getElementById("incomeChart");
+            this.incomeChart = echarts.init(dom);
+
+            var domClient = document.getElementById("clientChart");
+            this.clientChart = echarts.init(domClient);
+
+            var incomeMonthDom = document.getElementById("incomeMonthChart");
+            this.incomeMonthChart = echarts.init(incomeMonthDom);
+
+            var dom1 = document.getElementById("worstChart");
+            this.worstChart = echarts.init(dom1);
+
+
+            var dom2 = document.getElementById("bestChart");
+            this.bestChart = echarts.init(dom2);
+
+            this.getDayIncomeChart(this.dataValue);
+            this.getMonthClientChart(this.clientValue);
+            this.getMonthIncomeChart(this.incomeMonthValue);
+            this.getMonthBestFood(this.bestValue);
+            this.getMonthWorstFood(this.worstValue);
+        },
+    })
+
+</script>
+
+</html>

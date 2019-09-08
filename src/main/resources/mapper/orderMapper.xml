@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qjkji.orderproject.core.mapper.OrderMapper">
+
+<!--    Integer tableId,-->
+<!--    Integer numberOfPeople, String name, String remarks-->
+    <!--    boolean updateOrder(Order order);-->
+    <update id="updateOrder">
+        UPDATE orders
+        <set>
+            <if test="tableId != 0">
+                table_id = #{tableId},
+            </if>
+            <if test="numberOfPeople != 0">
+                number_of_people = #{numberOfPeople},
+            </if>
+            <if test="clientName != null and clientName != ''">
+                client_name = #{clientName},
+            </if>
+            <if test="remarks != null and remarks != ''">
+                remarks = #{remarks},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+
+
+</mapper>

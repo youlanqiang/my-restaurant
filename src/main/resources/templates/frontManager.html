@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>前台管理</title>
+  <link href="https://cdn.bootcss.com/element-ui/2.11.1/theme-chalk/index.css" rel="stylesheet">
+  <script src="/js/jquery.js"></script>
+  <script src="/js/vue.js"></script>
+  <script src="https://cdn.bootcss.com/element-ui/2.11.1/index.js"></script>
+  <script src="/js/decimal.js"></script>
+  <script src="/js/config.js"></script>
+</head>
+<style>
+  [v-cloak] {
+    display: none;
+  }
+
+  .your_class {
+    width: 400px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .user-search {
+    margin-top: 20px;
+    margin: 10px;
+  }
+
+  html,
+  body,
+  #app,
+  .el-container {
+    /*设置内部填充为0，几个布局元素之间没有间距*/
+    padding: 0px;
+    /*外部间距也是如此设置*/
+    margin: 0px;
+    /*统一设置高度为100%*/
+    height: 100%;
+  }
+</style>
+
+<body>
+
+  <div id="app" v-cloak>
+    <el-container>
+
+      <div th:replace="template::controller"></div>
+      <el-container>
+        <el-main>
+
+
+          <el-form :inline="true" class="user-search">
+            <el-form-item>
+              <el-button @click="showCreateTableDialog" type="primary">添加桌子</el-button>
+            </el-form-item>
+          </el-form>
+
+          <el-col>
+            <el-row :gutter="4">
+              <el-col :span="4" v-for="(item, index) in list">
+                <el-card :body-style="{ padding: '0px' }" style="margin: 10px; ">
+                  <div v-if="item.used" style="padding: 14px;background-color: #F56C6C">
+                    <i class="el-icon-close" @click="closeTable(item.id)" style="float: right;cursor:pointer;"></i>
+                    <p style="color: #FFFFFF">{{item.name}}</p>
+                    <p class="your_class">客户姓名:{{item.order.clientName}}</p>
+                    <p> {{ showStr(item.order.startDate) }}</p>
+                    <div class="bottom clearfix">
+                      <!-- <el-button type="text" @click="showPay(item.order.id)" class="button">结账</el-button> -->
+                      <el-button type="text" @click="showManagerOrder(item.order.id)" class="button">管理
+                      </el-button>
+                      <el-button type="text" @click="showReInfo(item.reservationInfoList)" class="button">
+                        查看预约
+                      </el-button>
+                    </div>
+                  </div>
+                  <div v-else style="padding: 14px;">
+                    <i class="el-icon-close" @click="closeTable(item.id)" style="float: right;cursor:pointer;"></i>
+                    <p class="your_class">{{item.name}}</p>
+                    <p>可容纳人数:{{item.capacity}}人</p>
+                    <p>预约情况:{{item.reservationInfoList.length}}个</p>
+                    <div class="bottom clearfix">
+                      <el-button type="text" @click="showCreateOrder(item.id)" class="button">创建
+                      </el-button>
+                      <el-button type="text" @click="showReInfo(item.reservationInfoList, item.id)" class="button">查看预约
+                      </el-button>
+                    </div>
+                  </div>
+                </el-card>
+              </el-col>
+            </el-row>
+          </el-col>
+
+          <!-- Main content -->
+        </el-main>
+
+      </el-container>
+      <el-dialog title="预约情况" :visible.sync="showReservationInfo">
+        <el-table :data="tempReservationList">
+          <el-table-column property="clientName" label="预约名称" width="150"></el-table-column>
+          <el-table-column property="clientTel" label="预约电话" width="200"></el-table-column>
+          <el-table-column property="numberOfPeople" label="人数"></el-table-column>
+          <el-table-column property="startDate" label="预约开始时间"></el-table-column>
+          <el-table-column property="endDate" label="预约结束时间"></el-table-column>
+          <el-table-column fixed="right" label="操作" width="100">
+            <template slot-scope="scope">
+              <el-button type="text" size="small" @click="cancelReservation(scope.$index)">取消</el-button>
+              <el-button type="text" size="small" @click="successReservation(scope.$index)">完成</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <span slot="footer" class="dialog-footer">
+          <el-button type="primary" @click="showCreate">创建预约</el-button>
+        </span>
+      </el-dialog>
+
+      <el-dialog title="创建预约" :visible.sync="showCreateDialog">
+        <el-form :model="tempReservation">
+          <el-form-item label="客户姓名">
+            <el-input size="small" v-model="tempReservation.clientName" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="客户电话">
+            <el-input size="small" v-model="tempReservation.clientTel" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="开始预约时间">
+            <el-input size="small" v-model="tempReservation.startTime" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="结束预约时间">
+            <el-input size="small" v-model="tempReservation.endTime" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="预约人数">
+            <el-input size="small" v-model="tempReservation.numberOfPeople" autocomplete="off"></el-input>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="showCreateDialog = false">取 消</el-button>
+          <el-button type="primary" @click="createReservation">确 定</el-button>
+        </div>
+      </el-dialog>
+
+      <el-dialog title="结账" :visible.sync="showSuccessDialog" width="30%">
+        <el-form>
+          <el-form-item label="应付金额">
+            <el-input size="small" v-model="actualAmount" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="支付金额">
+            <el-input size="small" v-model="paymentAmount" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="支付方式">
+            <el-select v-model="paymentType" placeholder="请选择">
+              <el-option v-for="item in paymentMethod" :key="item.type" :label="item.type" :value="item.value">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item v-if="paymentType == 2 || paymentType == 1">
+            <el-input size="small" show-password="true" v-model="onlineCode" autocomplete="off"></el-input>
+          </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="showSuccessDialog = false">取 消</el-button>
+          <el-button type="primary" @click="paySuccess">确 定</el-button>
+        </span>
+      </el-dialog>
+
+
+      <el-dialog top="1%" title="创建订单" :visible.sync="showOrderDialog" width="70%">
+
+        <el-aside width="100%">
+          <div style="float: left; width: 30%;">
+            <el-form :model="tempOrder" style="width: 60%">
+              <el-form-item label="客户姓名">
+                <el-input v-model="tempOrder.name" autocomplete="off"></el-input>
+              </el-form-item>
+              <el-form-item label="备注">
+                <el-input v-model="tempOrder.remarks" autocomplete="off"></el-input>
+              </el-form-item>
+              <el-form-item label="人数">
+                <el-input v-model="tempOrder.numberOfPeople" autocomplete="off"></el-input>
+              </el-form-item>
+              <el-form-item label="已经点金额">
+                <el-input disabled=“true” v-model="foodsPrice" autocomplete="off"></el-input>
+              </el-form-item>
+            </el-form>
+          </div>
+          <!-- style="position: relative;left: 500px;" -->
+          <div style="float:right;width: 69%;">
+            <el-table :data="tempOrder.foods" max-height="400px">
+              <el-table-column fixed prop="foodName" label="名称" width="100">
+              </el-table-column>
+              <el-table-column prop="singlePrice" label="单价" width="90">
+              </el-table-column>
+              <el-table-column prop="discount" label="折扣" width="50">
+              </el-table-column>
+              <el-table-column label="折后价" width="100">
+                <template slot-scope="scope">
+                  <span>{{new Decimal(scope.row.singlePrice).mul(new Decimal(scope.row.discount))  }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column fixed="right" label="数量" width="200">
+                <template slot-scope="scope">
+                  <el-input-number size="mini" v-model="tempOrder.foods[scope.$index].amount" :min="1">
+                  </el-input-number>
+                </template>
+              </el-table-column>
+              <el-table-column fixed="right" label="操作" width="60">
+                <template slot-scope="scope">
+                  <el-button @click="deleteFoods(scope.$index)" type="text" size="small">删 除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+        </el-aside>
+
+        <el-dialog top="1%" width="100%" title="菜品选择" :visible.sync="innerVisible" append-to-body>
+          <div style="height:600px; overflow: auto;">
+            <el-main>
+              <el-tabs v-model="className">
+                <el-tab-pane v-for="item in foodTable" :label="item.className" :name="item.className">
+
+                  <el-col>
+                    <el-row :gutter="4">
+                      <el-col :span="4" v-for="(food, index) in item.foods">
+                        <el-card :body-style="{ padding: '0px' }" style="margin: 10px; ">
+                          <div style="padding: 14px;">
+                            <el-image style="width: 100%; height: 100px" :src="http+'/file/get/'+food.imgPath"
+                              fit="fill">
+                            </el-image>
+                            <i v-else></i>
+                            <p class="your_class" style="color: #FFFFFF">{{food.foodName}}</p>
+                            <p class="your_class">价格:{{food.formatRealPrice}}</p>
+                            <p class="your_class">{{food.foodInfo}}</p>
+                            <div class="bottom clearfix">
+                              <el-button type="text" @click="addTempFood(food)" class="button">添 加
+                              </el-button>
+                            </div>
+                          </div>
+                        </el-card>
+                      </el-col>
+                    </el-row>
+                  </el-col>
+
+
+                </el-tab-pane>
+              </el-tabs>
+            </el-main>
+          </div>
+        </el-dialog>
+
+        <div slot="footer" class="dialog-footer">
+          <el-button type="primary" @click="innerVisible = true">选 菜</el-button>
+          <el-button @click="showOrderDialog = false">取 消</el-button>
+          <el-button type="primary" @click="createOrder">确 定</el-button>
+        </div>
+      </el-dialog>
+
+
+      <el-dialog top="1%" title="管理订单" :visible.sync="showManagerDialog" width="70%">
+
+        <el-aside width="100%">
+          <div style="float: left; width: 30%;">
+            <el-form :model="tempManagerOrder" style="width: 60%">
+              <el-form-item label="客户姓名">
+                <el-input size="small" v-model="tempManagerOrder.clientName" autocomplete="off"></el-input>
+              </el-form-item>
+              <el-form-item label="备注">
+                <el-input size="small" v-model="tempManagerOrder.remarks" autocomplete="off"></el-input>
+              </el-form-item>
+              <el-form-item label="人数">
+                <el-input size="small" v-model="tempManagerOrder.numberOfPeople" autocomplete="off"></el-input>
+              </el-form-item>
+              <el-form-item label="桌号">
+                <el-select v-model="tranTableId" placeholder="请选择">
+                  <el-option label="本座" :value="tableId"></el-option>
+                  <el-option v-for="item in list" v-if="item.used == false" :key="item.id" :label="item.name"
+                    :value="item.id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="已经点金额">
+                <el-input size="small" disabled=“true” v-model="managerFoodsPrice" autocomplete="off"></el-input>
+              </el-form-item>
+            </el-form>
+          </div>
+          <!-- style="position: relative;left: 500px;" -->
+          <div style="float:right;width: 69%;">
+            <el-table :data="tempManagerOrder.foods" max-height="400px">
+              <el-table-column fixed prop="foodName" label="名称" width="100">
+              </el-table-column>
+              <el-table-column prop="singlePrice" label="单价" width="90">
+              </el-table-column>
+              <el-table-column prop="discount" label="折扣" width="50">
+              </el-table-column>
+              <el-table-column prop="realSinglePrice" label="折后价" width="100">
+              </el-table-column>
+              <el-table-column prop="returnMessage" label="退菜原因" width="100">
+              </el-table-column>
+              <el-table-column label="状态" width="80">
+                <template slot-scope="scope">
+                  <span style="color: #F56C6C" v-if="scope.row.returnStatus">
+                    已退菜
+                  </span>
+                  <span style="color: #67C23A" v-else-if="scope.row.status">
+                    以上齐
+                  </span>
+                  <span style="color: #E6A23C" v-else>
+                    未上齐
+                  </span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="amount" label="数量" width="60">
+              </el-table-column>
+              <el-table-column fixed="right" label="操作" width="140">
+                <template slot-scope="scope">
+                  <el-button @click="returnFood(scope.$index)" type="text" size="small">退 菜</el-button>
+                  <el-button @click="successFood(scope.$index)" type="text" size="small">确认上齐</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+        </el-aside>
+
+        <el-dialog top="1%" width="100%" title="菜品选择" :visible.sync="innerManagerVisible" append-to-body>
+          <div style="height:600px; overflow: auto;">
+            <el-main>
+              <el-tabs v-model="className">
+                <el-tab-pane v-for="item in foodTable" :label="item.className" :name="item.className">
+
+                  <el-col>
+                    <el-row :gutter="4">
+                      <el-col :span="4" v-for="(food, index) in item.foods">
+                        <el-card :body-style="{ padding: '0px' }" style="margin: 10px; ">
+                          <div style="padding: 14px;">
+                            <el-image style="width: 100%; height: 100px" :src="http+'/file/get/'+food.imgPath"
+                              fit="fill">
+                            </el-image>
+                            <i v-else></i>
+                            <p class="your_class" style="color: #FFFFFF">{{food.foodName}}</p>
+                            <p class="your_class">价格:{{food.formatRealPrice}}</p>
+                            <p class="your_class">{{food.foodInfo}}</p>
+                            <div class="bottom clearfix">
+                              <el-button type="text" @click="addFoodForManagerOrder(food.id)" class="button">添 加
+                              </el-button>
+                            </div>
+                          </div>
+                        </el-card>
+                      </el-col>
+                    </el-row>
+                  </el-col>
+
+
+                </el-tab-pane>
+              </el-tabs>
+            </el-main>
+          </div>
+        </el-dialog>
+
+        <div slot="footer" class="dialog-footer">
+
+          <el-button v-if="app.tempManagerOrder.paymentStatus == 0" type="primary"
+            @click="showPay(app.tempManagerOrder.id)" style="float:left">结账</el-button>
+          <el-button v-if="app.tempManagerOrder.paymentStatus == 1" type="primary"
+            @click="releaseTable(app.tempManagerOrder.tableId)" style="float:left">散桌</el-button>
+          <el-button type="primary" @click="urgeOrder" style="float:left">催菜</el-button>
+          <el-button v-if="app.tempManagerOrder.paymentStatus == 0" type="primary" @click="updateOrderInfo" style="float:left">更新信息</el-button>
+          <el-button v-if="app.tempManagerOrder.paymentStatus == 0" type="danger" @click="cancelThisOrder" style="float:left">取消订单</el-button>
+          <el-button v-if="app.tempManagerOrder.paymentStatus == 0" type="primary" @click="innerManagerVisible = true">选 菜</el-button>
+          <el-button @click="showManagerDialog = false">取 消</el-button>
+        </div>
+      </el-dialog>
+
+
+      <el-dialog title="创建座位" :visible.sync="showCreateTable" width="30%">
+        <el-form>
+          <el-form-item label="桌位号">
+            <el-input size="small" v-model="tempTable.tableName" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="容量">
+            <el-input-number v-model="tempTable.capacity" :min="1"></el-input-number>
+          </el-form-item>
+
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="showCreateTable = false">取 消</el-button>
+          <el-button type="primary" @click="createTable">确 定</el-button>
+        </span>
+      </el-dialog>
+
+    </el-container>
+  </div>
+
+</body>
+<script>
+
+
+  var app = new Vue({
+    el: '#app',
+    data: {
+      onlineCode: "",
+      showCreateTable: false,
+      tempTable: {
+        tableName: "",
+        capacity: 2
+      },
+      tranTableId: 0,
+      tempManagerOrder: {},
+      innerManagerVisible: false,
+      showManagerDialog: false,
+      className: 0,
+      foodTable: [],
+      paymentMethod: [
+        { type: '现金', value: 3 },
+        { type: '微信', value: 2 },
+        { type: '支付宝', value: 1 }
+      ],
+      actualAmount: "0.00",
+      paymentType: 3,
+      paymentAmount: 0.00,
+      tableId: 0,
+      orderId: 0,
+      innerVisible: false,
+      showOrderDialog: false,
+      showSuccessDialog: false,
+      showCreateDialog: false,
+      showReservationInfo: false,
+      tempOrder: {
+        id: 0,
+        name: "顾客",
+        remarks: "",
+        numberOfPeople: 2,
+        tableId: 0,
+        foods: []
+      },
+      tempReservation: {
+        clientName: "顾客",
+        clientTel: "",
+        endTime: "",
+        startTime: "",
+        numberOfPeople: 6,
+        tableId: 3
+      },
+      tempReservationList: [],
+      list: [],
+    },
+    methods: {
+      releaseTable: function (tableId) {
+        this.$confirm('是否散桌?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          $.ajax({
+            url: http + "/table/release/" + tableId,
+            type: "post",
+            success: function (req) {
+              if (req.code == 200) {
+                app.$message.success(req.msg);
+                app.showManagerDialog = false;
+                app.getTables();
+              } else {
+                app.$message.error(req.msg);
+              }
+            }
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
+      },
+      showStr: function (str) {
+        return str.slice(-8);
+      },
+      closeTable: function (tableId) {
+        this.$confirm('是否删除?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          $.ajax({
+            url: http + "/table/delete/" + tableId,
+            type: "delete",
+            success: function (req) {
+              if (req.code == 200) {
+                app.$message.success(req.msg);
+                app.showManagerDialog = false;
+                app.getTables();
+              } else {
+                app.$message.error(req.msg);
+              }
+            }
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
+      },
+      createTable: function () {
+        $.ajax({
+          url: http + "/table/create",
+          type: "post",
+          data: {
+            capacity: app.tempTable.capacity,
+            show: true,
+            tableName: app.tempTable.tableName
+          },
+          success: function (req) {
+            if (req.code == 200) {
+              app.$message.success(req.msg);
+              app.showCreateTable = false;
+              app.getTables();
+            } else {
+              app.$message.error(req.msg);
+            }
+          }
+        })
+      },
+      showCreateTableDialog: function () {
+        this.tempTable = {
+          tableName: "",
+          capacity: 2
+        }
+        this.showCreateTable = true;
+
+      },
+      returnFood: function (index) {
+        var food = app.tempManagerOrder.foods[index];
+        this.$prompt('请输入退菜理由', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+        }).then(({ value }) => {
+          $.ajax({
+            url: http + "/order/return-food/" + food.id,
+            type: "post",
+            data: { msg: value },
+            success: function (req) {
+              if (req.code == 200) {
+                app.$message.success(req.msg);
+                app.tempManagerOrder.foods[index].returnMessage = value;
+                app.tempManagerOrder.foods[index].returnStatus = true;
+              } else {
+                app.$message.error(req.msg);
+              }
+            }
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '取消输入'
+          });
+        });
+      },
+      addFoodForManagerOrder: function (foodId) {
+        $.ajax({
+          url: http + "/order/add-food/" + app.tempManagerOrder.id + "/" + foodId,
+          type: "post",
+          success: function (req) {
+            if (req.code == 200) {
+              app.$message.success(req.msg);
+              $.ajax({
+                url: http + "/order/get/" + app.tempManagerOrder.id,
+                type: "get",
+                success: function (req) {
+                  if (req.code == 200) {
+                    app.tableId = req.data.tableId;
+                    app.tranTableId = req.data.tableId;
+                    app.tempManagerOrder = req.data;
+                  }
+                }
+              })
+            } else {
+              app.$message.error(req.msg);
+            }
+          }
+        })
+      },
+      successFood: function (index) {
+        var food = app.tempManagerOrder.foods[index];
+        $.ajax({
+          url: http + "/order/complete-food/" + food.id,
+          type: "post",
+          success: function (req) {
+            if (req.code == 200) {
+              app.$message.success(req.msg);
+              app.tempManagerOrder.foods[index].status = true;
+            } else {
+              app.$message.error(req.msg);
+            }
+          }
+        })
+      },
+      cancelThisOrder: function () {
+        //取消这个订单
+        this.$confirm('是否取消该订单?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          $.ajax({
+            url: http + "/order/cancel/" + app.tempManagerOrder.id,
+            type: "delete",
+            success: function (req) {
+              if (req.code == 200) {
+                app.$message.success(req.msg);
+                app.showManagerDialog = false;
+                app.getTables();
+              } else {
+                app.$message.error(req.msg);
+              }
+            }
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
+      },
+      urgeOrder: function () {
+        $.ajax({
+          url: http + "/order/urge-order/" + app.tempManagerOrder.id,
+          type: "post",
+          success: function (req) {
+            if (req.code == 200) {
+              app.$message.success(req.msg);
+            } else {
+              app.$message.error(req.msg);
+            }
+          }
+        })
+      },
+      updateOrderInfo: function () {
+        $.ajax({
+          url: http + "/order/update/" + app.tempManagerOrder.id,
+          type: "post",
+          data: {
+            amount: app.tempManagerOrder.numberOfPeople,
+            name: app.tempManagerOrder.clientName,
+            remarks: app.tempManagerOrder.remarks,
+            tableId: app.tranTableId
+          },
+          success: function (req) {
+            if (req.code == 200) {
+              app.$message.success(req.msg);
+              app.showManagerDialog = false;
+              app.getTables();
+            } else {
+              app.$message.error(req.msg);
+            }
+          }
+        })
+      },
+      showManagerOrder: function (orderId) {
+        $.ajax({
+          url: http + "/order/get/" + orderId,
+          type: "get",
+          success: function (req) {
+            if (req.code == 200) {
+              app.tableId = req.data.tableId;
+              app.tranTableId = req.data.tableId;
+              app.tempManagerOrder = req.data;
+              app.showManagerDialog = true;
+
+            }
+          }
+        })
+      },
+      showCreateOrder: function (tableId) {
+        this.tempOrder = {
+          id: 0,
+          name: "顾客",
+          remarks: "",
+          numberOfPeople: 2,
+          tableId: tableId,
+          foods: []
+        }
+        this.showOrderDialog = true;
+      },
+      addTempFood: function (food) {
+
+        var item = {
+          foodId: food.id,
+          foodName: food.foodName,
+          singlePrice: food.price,
+          discount: food.discount,
+          amount: 1
+        }
+        this.tempOrder.foods.push(item);
+        this.$message.success("添加成功.");
+      },
+      createOrder: function () {
+        $.ajax({
+          url: http + "/order/create-with-foods",
+          type: "post",
+          data: {
+            amount: app.tempOrder.numberOfPeople,
+            foods: JSON.stringify(app.tempOrder.foods),
+            name: app.tempOrder.name,
+            remarks: app.tempOrder.remarks,
+            tableId: app.tempOrder.tableId
+          },
+          success: function (req) {
+            if (req.code == 200) {
+              app.$message.success(req.msg);
+              app.getTables();
+              app.showOrderDialog = false;
+            } else {
+              app.$message.error(req.msg);
+            }
+          }
+        })
+      },
+      deleteFoods: function (index) {
+        this.tempOrder.foods.splice(index, 1);
+      },
+      paySuccess: function () {
+        if (app.paymentType == 3) {
+          $.ajax({
+            url: http + "/order/success/" + app.orderId,
+            type: "post",
+            data: { price: app.paymentAmount, type: app.paymentType },
+            success: function (req) {
+              if (req.code == 200) {
+                app.$message.success(req.msg);
+                app.getTables();
+                app.showSuccessDialog = false;
+              } else {
+                app.$message.error(req.msg);
+              }
+            }
+          })
+        } else if (app.paymentType == 1) {
+
+          $.ajax({
+            url: http + "/pay/f2fpay/barCodePay",
+            type: "post",
+            data: { orderId: app.orderId, onlineCode: app.onlineCode },
+            success: function (req) {
+              if (req.code == 200) {
+                app.$message.success(req.msg);
+                app.getTables();
+                app.showSuccessDialog = false;
+                app.onlineCode = "";
+              } else {
+                app.$message.error(req.msg);
+                app.onlineCode = "";
+              }
+            }
+          })
+
+
+        }
+
+
+
+
+      },
+      showPay: function (id) {
+
+        this.orderId = id;
+        //得出order的应付订单
+        $.ajax({
+          url: http + "/order/get-actual-price/" + id,
+          type: "get",
+          data: app.tempReservation,
+          success: function (req) {
+            if (req.code == 200) {
+              app.actualAmount = req.data;
+              app.paymentAmount = req.data;
+              app.showManagerDialog = false;
+              app.showSuccessDialog = true;
+            }
+          }
+        })
+      },
+      createReservation: function () {
+        $.ajax({
+          url: http + "/reservation/create",
+          type: "post",
+          data: app.tempReservation,
+          success: function (req) {
+            if (req.code == 200) {
+              app.$message.success(req.msg);
+              app.getTables();
+              app.showCreateDialog = false;
+            } else {
+              app.$message.error(req.msg);
+            }
+          }
+        })
+      },
+      hiddenCreate: function () {
+        this.showCreateDialog = false;
+        this.showReservationInfo = true;
+      },
+      showCreate: function () {
+        this.tempReservation = {
+          clientName: "顾客",
+          clientTel: "",
+          endTime: "2019-08-11 14:30:00",
+          startTime: "2019-08-11 14:30:00",
+          numberOfPeople: 2,
+          tableId: this.tableId
+        }
+        this.showReservationInfo = false;
+        this.showCreateDialog = true;
+      },
+      successReservation: function (index) {
+
+        var id = this.tempReservationList[index].id;
+        $.ajax({
+          url: http + "/reservation/success/" + id,
+          type: "post",
+          success: function (req) {
+            if (req.code == 200) {
+              app.$message.success(req.msg);
+              app.getTables();
+              app.tempReservationList.splice(index, 1);
+            } else {
+              app.$message.error(req.msg);
+            }
+          }
+        })
+      },
+      cancelReservation: function (index) {
+        var id = this.tempReservationList[index].id;
+        this.$confirm('是否取消?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          $.ajax({
+            url: http + "/reservation/cancel/" + id,
+            type: "delete",
+            success: function (req) {
+              if (req.code == 200) {
+                app.$message.success(req.msg);
+                app.getTables();
+                app.tempReservationList.splice(index, 1);
+              } else {
+                app.$message.error(req.msg);
+              }
+            }
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
+
+
+      },
+      showReInfo: function (temp, tableId) {
+        this.tableId = tableId;
+        this.tempReservationList = temp;
+        this.showReservationInfo = true;
+      },
+      getFoodTable: function () {
+        $.ajax({
+          url: http + "/food/all",
+          type: "get",
+          success: function (req) {
+            if (req.code == 200) {
+              app.foodTable = req.data;
+              app.className = req.data[0].className;
+            }
+          }
+        })
+      },
+      getTables: function () {
+        $.ajax({
+          url: http + "/table/list-info",
+          type: "get",
+          success: function (req) {
+            if (req.code == 200) {
+              app.list = req.data;
+            }
+          }
+        })
+      }
+    },
+    computed: {
+      foodsPrice: function () {
+        var price = new Decimal(0);
+
+        for (var i in this.tempOrder.foods) {
+          var tempFood = this.tempOrder.foods[i];
+          var tempFoodPrice = new Decimal(tempFood.singlePrice).mul(new Decimal(tempFood.discount)).mul(new Decimal(tempFood.amount));
+          price = price.add(tempFoodPrice);
+        }
+        //new Decimal(scope.row.singlePrice).mul(new Decimal(scope.row.discount))
+        return price;
+      },
+      managerFoodsPrice: function () {
+        var price = new Decimal(0);
+        var list = this.tempManagerOrder.foods;
+        for (var i in list) {
+          var tempFood = list[i];
+          var tempFoodPrice = new Decimal(tempFood.singlePrice).mul(new Decimal(tempFood.discount)).mul(new Decimal(tempFood.amount));
+          price = price.add(tempFoodPrice);
+        }
+        //new Decimal(scope.row.singlePrice).mul(new Decimal(scope.row.discount))
+        return price;
+      }
+    },
+    mounted: function () {
+      this.getTables();
+      this.getFoodTable();
+    },
+
+  })
+
+
+
+
+
+</script>
+
+</html>

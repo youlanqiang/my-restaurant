@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>订单管理</title>
+    <link href="https://cdn.bootcss.com/element-ui/2.11.1/theme-chalk/index.css" rel="stylesheet">
+    <script src="/js/jquery.js"></script>
+    <script src="/js/vue.js"></script>
+    <script src="https://cdn.bootcss.com/element-ui/2.11.1/index.js"></script>
+    <script src="/js/decimal.js"></script>
+    <script src="/js/config.js"></script>
+    <style>
+        .user-search {
+            margin-top: 20px;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+
+        html,
+        body,
+        #app,
+        .el-container {
+            /*设置内部填充为0，几个布局元素之间没有间距*/
+            padding: 0px;
+            /*外部间距也是如此设置*/
+            margin: 0px;
+            /*统一设置高度为100%*/
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" v-cloak>
+        <el-container>
+            <div th:include="template::controller"></div>
+
+            <el-main>
+                <el-form :inline="true" class="user-search">
+                    <el-form-item label="搜索：">
+                        <el-input size="small" v-model="clientName" placeholder="输入名称"></el-input>
+                    </el-form-item>
+                    <el-form-item label="桌号：">
+                        <el-select v-model="tableId" placeholder="请选择">
+                            <el-option label="全部" value="0"></el-option>
+                            <el-option v-for="item in tableList" :key="item.id" :label="item.name" :value="item.id">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="时间：">
+                        <el-date-picker value-format="yyyy-MM-dd HH:mm:ss" v-model="time" type="datetimerange"
+                            range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">
+                        </el-date-picker>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button @click="currentChange(current)">查 询</el-button>
+                    </el-form-item>
+                </el-form>
+
+                <el-table size="small" :data="list" highlight-current-row border style="width: 100%;">
+                    <el-table-column fixed prop="id" label="id" width="80">
+                    </el-table-column>
+                    <el-table-column prop="clientName" label="客户名称" width="120">
+                    </el-table-column>
+                    <el-table-column prop="numberOfPeople" label="人数" width="80">
+                    </el-table-column>
+                    <el-table-column prop="remarks" label="备注" width="120">
+                    </el-table-column>
+                    <el-table-column prop="formatPaymentAmount" label="支付金额" width="120">
+                    </el-table-column>
+                    <el-table-column prop="tableId" label="桌号" width="120">
+                    </el-table-column>
+                    <el-table-column label="支付状态" width="120">
+                        <template slot-scope="scope">
+                            <span style="color: #67C23A" v-if="scope.row.paymentStatus">
+                                支付完成
+                            </span>
+                            <span style="color: #F56C6C" v-else>
+                                未支付
+                            </span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="支付方式">
+                        <template slot-scope="scope">
+                            <span v-if="scope.row.paymentType==0">
+                                未支付
+                            </span>
+                            <span v-if="scope.row.paymentType==3">
+                                现金
+                            </span>
+                            <span v-if="scope.row.paymentType==2">
+                                微信
+                            </span>
+                            <span v-if="scope.row.paymentType==1">
+                                支付宝
+                            </span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="onlineCode" label="线上订单号" width="200">
+                        </el-table-column>
+                    <el-table-column label="订单状态">
+                        <template slot-scope="scope">
+                            <span style="color: #67C23A" v-if="scope.row.status">
+                                正常
+                            </span>
+                            <span style="color: #F56C6C" v-else>
+                                被取消
+                            </span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="startDate" label="开始时间" width="200">
+                    </el-table-column>
+                    <el-table-column prop="endDate" label="结束时间" width="200">
+                    </el-table-column>
+                    <el-table-column fixed="right" label="操作" width="100">
+                        <template slot-scope="scope">
+                            <el-button type="text" @click="showInfo(scope.row.id)" size="small">查看</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <el-pagination layout="prev, pager, next" :total="total" :page-size="size"
+                    @current-change="currentChange">
+                </el-pagination>
+            </el-main>
+
+
+            <el-dialog title="分类选择" :visible.sync="showInfoDialog">
+                <el-table :data="tempFoodList" style="width: 100%">
+                    <el-table-column fixed prop="foodName" label="名称" width="100">
+                    </el-table-column>
+                    <el-table-column prop="singlePrice" label="单价" width="90">
+                    </el-table-column>
+                    <el-table-column prop="discount" label="折扣" width="50">
+                    </el-table-column>
+                    <el-table-column prop="realSinglePrice" label="折后价" width="100">
+                    </el-table-column>
+                    <el-table-column prop="returnMessage" label="退菜原因" width="100">
+                    </el-table-column>
+                    <el-table-column label="状态" width="80">
+                        <template slot-scope="scope">
+                            <span style="color: #F56C6C" v-if="scope.row.returnStatus">
+                                已退菜
+                            </span>
+                            <span style="color: #67C23A" v-else-if="scope.row.status">
+                                以上齐
+                            </span>
+                            <span style="color: #E6A23C" v-else>
+                                未上齐
+                            </span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="amount" label="数量" width="60">
+                    </el-table-column>
+                </el-table>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="showInfoDialog = false">取 消</el-button>
+                </span>
+            </el-dialog>
+
+
+
+        </el-container>
+    </div>
+
+</body>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            showInfoDialog: false,
+            clientName: "",
+            current: 1,
+            size: 10,
+            time: [],
+            tableId: "0",
+            total: 0,
+            tempFoodList: [],
+            list: [],
+            tableList: []
+        },
+        methods: {
+            showInfo: function (orderId) {
+                $.ajax({
+                    url: http + "/order/get/" + orderId,
+                    type: "get",
+                    success: function (req) {
+                        if (req.code == 200) {
+                            app.tempFoodList = req.data.foods;
+                            app.showInfoDialog = true;
+                        }
+                    }
+                })
+
+            },
+            getTableList: function () {
+                $.ajax({
+                    url: http + "/table/list",
+                    type: "get",
+                    success: function (req) {
+                        if (req.code == 200) {
+                            app.tableList = req.data;
+                        }
+                    }
+                })
+            },
+            currentChange: function (current) {
+                this.getList(current, app.size, app.clientName, app.tableId, app.time);
+            },
+            getList: function (current, size, clientName, tableId, time) {
+                if (time == null) {
+                    time = ["", ""];
+                }
+                $.ajax({
+                    url: http + "/order/page/" + current + "/" + size,
+                    type: "get",
+                    data: {
+                        clientName: clientName,
+                        startTime: time[0],
+                        endTime: time[1],
+                        tableId: tableId
+                    },
+                    success: function (req) {
+                        if (req.code == 200) {
+                            app.current = req.data.current;
+                            app.size = req.data.size;
+                            app.total = req.data.total;
+                            app.list = req.data.records;
+                        }
+                    }
+                })
+            }
+        },
+        mounted: function () {
+            this.getList(1, 10, "", 0, ["", ""]);
+            this.getTableList();
+        },
+    })
+
+</script>
+
+</html>

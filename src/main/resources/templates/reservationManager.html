@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>预约管理</title>
+    <link href="https://cdn.bootcss.com/element-ui/2.11.1/theme-chalk/index.css" rel="stylesheet">
+    <script src="/js/jquery.js"></script>
+    <script src="/js/vue.js"></script>
+    <script src="https://cdn.bootcss.com/element-ui/2.11.1/index.js"></script>
+    <script src="/js/decimal.js"></script>
+    <script src="/js/config.js"></script>
+    <style>
+        .user-search {
+            margin-top: 20px;
+        }
+        [v-cloak] {
+   display:none;
+}
+html,body,#app,.el-container{
+        /*设置内部填充为0，几个布局元素之间没有间距*/
+        padding: 0px;
+         /*外部间距也是如此设置*/
+        margin: 0px;
+        /*统一设置高度为100%*/
+        height: 100%;
+    }
+
+    </style>
+</head>
+
+<body>
+<div id="app" v-cloak>
+    <el-container>
+
+        <div th:include="template::controller"></div>
+
+        <el-main>
+
+            <el-form :inline="true" class="user-search">
+                <el-form-item>
+                    <el-button @click="showCreate" type="primary">创建预约</el-button>
+                </el-form-item>
+            </el-form>
+
+            <el-table size="small" :data="list" highlight-current-row border style="width: 100%;">
+                <el-table-column fixed prop="id" label="id" width="80">
+                </el-table-column>
+                <el-table-column prop="clientName" label="客户名称" width="120">
+                </el-table-column>
+                <el-table-column prop="clientTel" label="客户电话" width="200">
+                </el-table-column>
+                <el-table-column prop="numberOfPeople" label="人数" width="80">
+                </el-table-column>
+                <el-table-column prop="endDate" label="结束预约时间" width="200">
+                </el-table-column>
+                <el-table-column prop="startDate" label="开始预约时间" width="200">
+                </el-table-column>
+                <el-table-column prop="tableId" label="桌号" width="120">
+                </el-table-column>
+                <el-table-column label="状态" width="120">
+                    <template slot-scope="scope">
+                        <span style="color: #67C23A" v-if="scope.row.status == 2">
+                            完成
+                        </span>
+                        <span style="color:#E6A23C" v-else-if="scope.row.status == 1">
+                            等待中
+                        </span>
+                        <span style="color: #F56C6C" v-else>
+                            取消
+                        </span>
+                    </template>
+                </el-table-column>
+
+                <el-table-column fixed="right" label="操作">
+                    <template slot-scope="scope">
+                        <el-button @click="cancelReservation(scope.row.id)" v-if="scope.row.status == 1" type="text"
+                                   size="small">取消
+                        </el-button>
+                        <el-button @click="successReservation(scope.row.id)" v-if="scope.row.status == 1" type="text"
+                                   size="small">成功
+                        </el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <el-pagination layout="prev, pager, next" :total="total" :page-size="size" @current-change="currentChange">
+            </el-pagination>
+        </el-main>
+
+        <el-dialog top="1%" title="创建预约" :visible.sync="showCreateDialog">
+            <el-form :model="tempReservation">
+                <el-form-item label="客户姓名">
+                    <el-input size="small" v-model="tempReservation.clientName" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="客户电话">
+                    <el-input size="small" v-model="tempReservation.clientTel" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="预约桌号">
+                    <el-select v-model="tempReservation.tableId" placeholder="请选择">
+                        <el-option label="未选择" value="0"></el-option>
+                        <el-option v-for="item in tableList" :key="item.id" :label="item.name" :value="item.id">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="开始预约时间">
+                    <el-input size="small" v-model="tempReservation.startTime" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="结束预约时间">
+                    <el-input size="small" v-model="tempReservation.endTime" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="预约人数">
+                    <el-input size="small" v-model="tempReservation.numberOfPeople" autocomplete="off"></el-input>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="showCreateDialog = false">取 消</el-button>
+                <el-button type="primary" @click="createReservation">确 定</el-button>
+            </div>
+        </el-dialog>
+
+    </el-container>
+
+</div>
+
+</body>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            showCreateDialog: false,
+            current: 1,
+            size: 10,
+            time: [],
+            total: 0,
+            list: [],
+            tableList: [],
+            tempReservation: {
+                clientName: "顾客",
+                clientTel: "",
+                endTime: "",
+                startTime: "",
+                numberOfPeople: 6,
+                tableId: 0,
+            },
+        },
+        methods: {
+            successReservation: function (id) {
+                $.ajax({
+                    url: http + "/reservation/success/" + id,
+                    type: "post",
+                    success: function (req) {
+                        if (req.code == 200) {
+                            app.$message.success(req.msg);
+                            app.currentChange(app.current);
+                        } else {
+                            app.$message.error(req.msg);
+                        }
+                    }
+                })
+            },
+            cancelReservation: function (id) {
+                this.$confirm('是否取消?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    $.ajax({
+                        url: http + "/reservation/cancel/" + id,
+                        type: "delete",
+                        success: function (req) {
+                            if (req.code == 200) {
+                                app.$message.success(req.msg);
+                                app.currentChange(app.current);
+                            } else {
+                                app.$message.error(req.msg);
+                            }
+                        }
+                    })
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消删除'
+                    });
+                });
+            },
+            createReservation: function () {
+                $.ajax({
+                    url: http + "/reservation/create",
+                    type: "post",
+                    data: app.tempReservation,
+                    success: function (req) {
+                        if (req.code == 200) {
+                            app.$message.success(req.msg);
+                            app.currentChange(app.current);
+                            app.showCreateDialog = false;
+                        } else {
+                            app.$message.error(req.msg);
+                        }
+                    }
+                })
+            },
+            showCreate: function () {
+                this.tempReservation = {
+                    clientName: "顾客",
+                    clientTel: "",
+                    endTime: "2019-08-11 14:30:00",
+                    startTime: "2019-08-11 14:30:00",
+                    numberOfPeople: 2,
+                    tableId: "0",
+                }
+                this.showCreateDialog = true;
+            },
+            showInfo: function (orderId) {
+                $.ajax({
+                    url: http + "/order/get/" + orderId,
+                    type: "get",
+                    success: function (req) {
+                        if (req.code == 200) {
+                            app.tempFoodList = req.data.foods;
+                            app.showInfoDialog = true;
+                        }
+                    }
+                })
+
+            },
+            currentChange: function (current) {
+                this.getList(current, app.size);
+            },
+            getTableList: function () {
+                $.ajax({
+                    url: http + "/table/list",
+                    type: "get",
+                    success: function (req) {
+                        if (req.code == 200) {
+                            app.tableList = req.data;
+                        }
+                    }
+                })
+            },
+            getList: function (current, size) {
+                $.ajax({
+                    url: http + "/reservation/page/" + current + "/" + size,
+                    type: "get",
+                    success: function (req) {
+                        if (req.code == 200) {
+                            app.current = req.data.current;
+                            app.size = req.data.size;
+                            app.total = req.data.total;
+                            app.list = req.data.records;
+                        }
+                    }
+                })
+            }
+        },
+        mounted: function () {
+            this.getList(1, 10);
+            this.getTableList();
+        },
+    })
+
+</script>
+
+</html>

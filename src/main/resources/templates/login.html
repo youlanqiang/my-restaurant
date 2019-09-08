@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>登陆</title>
+    <link href="https://cdn.bootcss.com/element-ui/2.11.1/theme-chalk/index.css" rel="stylesheet">
+    <script src="/js/jquery.js"></script>
+    <script src="/js/vue.js"></script>
+    <script src="https://cdn.bootcss.com/element-ui/2.11.1/index.js"></script>
+    <script src="/js/decimal.js"></script>
+    <script src="/js/config.js"></script>
+</head>
+<style>
+    [v-cloak] {
+        display: none;
+    }
+
+    html,
+    body,
+    #app,
+    .el-container {
+        /*设置内部填充为0，几个布局元素之间没有间距*/
+        padding: 0px;
+        /*外部间距也是如此设置*/
+        margin: 3px;
+        /*统一设置高度为100%*/
+        height: 100%;
+    }
+
+    #app {
+        /* 外面div宽高 */
+        width: 300px;
+        height: 430px;
+        padding-top: 50px;
+        padding-left: 30px;
+        padding-right: 50px;
+        display: flex;
+        border: 1px solid #333333;
+        display: -webkit-flex;
+        justify-content: center;
+        align-items: center;
+        position: absolute;
+        left: 50%;
+        top: 20%;
+        background-color: #FFFFFF;
+        border-radius: 10px 10px 10px 10px;
+    }
+</style>
+
+<body style="background-image:url(/img/timg.jpg);
+background-repeat:no-repeat ;
+background-size:100% 100%;
+background-attachment: fixed;">
+    <div id="app" v-cloak>
+        <template>
+            <div class="hello">
+                <el-tabs v-model="activeName">
+                    <el-tab-pane label="用户名登陆" name="first" :key="'first'">
+                        <div style="background: yellow; display: inline">
+                            <el-main style="height: 390px;">
+                                <el-form label-width="80px">
+                                    <el-form-item label="用户名">
+                                        <el-input v-model="username" type="text" placeholder="请输入用户名"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="密码">
+                                        <el-input show-password v-model="password" type="text" placeholder="请输入密码">
+                                        </el-input>
+                                    </el-form-item>
+                                    <el-form-item label="验证码">
+                                        <el-input v-model="kaptcha"></el-input>
+                                    </el-form-item>
+
+                                    <el-form :inline="true">
+                                        <el-form-item>
+                                            <el-button size="mini" type="primary" @click="refreshImage"
+                                                icon="el-icon-refresh" style="position: relative;">刷新
+                                            </el-button>
+                                        </el-form-item>
+                                        <el-form-item>
+                                            <el-image style="width: 150px" :src="imgvalue" fit="fill"></el-image>
+                                        </el-form-item>
+                                    </el-form>
+
+                                    <el-form-item>
+                                        <el-button type="primary" @click="login"
+                                            style="width: 200px; position: relative; left: -40px; border-radius: 30px 30px 30px 30px; ">
+                                            登 陆</el-button><br>
+                                        <el-button @click="showUserTable"
+                                            style=" width: 200px; position: relative;left: -40px; top: 10px;border-radius: 30px 30px 30px 30px;">
+                                            注 册</el-button>
+                                    </el-form-item>
+                                </el-form>
+                            </el-main>
+                        </div>
+                    </el-tab-pane>
+
+
+                    <el-tab-pane label="手机号登陆" name="second" :key="'second'">
+                        <div style="height: 800px; background: green; display: inline;">
+                            <el-main style="height: 390px;">
+                                <el-form label-width="100px">
+                                    <el-form-item label="手机号">
+                                        <el-input v-model="telephone" type="text" placeholder="请输入手机号"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="验证码">
+
+                                        <el-input v-model="code" type="text" placeholder="请输入验证码"></el-input>
+                                    </el-form-item>
+                                    <el-form-item>
+
+                                        <el-button type="primary" :disabled="isDisabled" @click="sendSmsCode">
+                                            {{buttonName}}</el-button>
+                                    </el-form-item>
+                                    <el-form-item>
+                                        <el-button type="primary" @click="telephoneLogin"
+                                            style="width: 200px; position: relative; left: -40px; border-radius: 30px 30px 30px 30px; ">
+                                            登 陆</el-button><br>
+                                        <el-button @click="showUserTable"
+                                            style="width: 200px; position: relative;left: -40px; top: 10px;border-radius: 30px 30px 30px 30px;">
+                                            注 册</el-button>
+                                    </el-form-item>
+                                </el-form>
+                            </el-main>
+                        </div>
+                    </el-tab-pane>
+                </el-tabs>
+            </div>
+        </template>
+        <el-dialog title="注册" :visible.sync="dialogFormVisible">
+            <el-form :model="user">
+                <el-form-item label="用户名" label-width="80px">
+                    <el-input v-model="user.username" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="密码" label-width="80px">
+                    <el-input show-password v-model="user.password" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="电话号码" label-width="80px">
+                    <el-input v-model="user.telephone" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="邮箱" label-width="80px">
+                    <el-input v-model="user.email" autocomplete="off"></el-input>
+                </el-form-item>
+
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="dialogFormVisible = false">取 消</el-button>
+                <el-button type="primary" @click="createUser">注 册</el-button>
+            </div>
+        </el-dialog>
+
+    </div>
+</body>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            time: 60,
+            isDisabled: false,
+            buttonName: "发送短信",
+            activeName: "first",
+            userPattern: /^[a-zA-Z0-9_-]{4,16}$/,
+            passwordPattern: /^.*(?=.{6,})(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*? ]).*$/,
+            emailPattern: /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/,
+            phonePattern: /^((13[0-9])|(14[5|7])|(15([0-3]|[5-9]))|(18[0,5-9]))\d{8}$/,
+            dialogFormVisible: false,
+            username: "",
+            password: "",
+            kaptcha: "",
+            imgvalue: "/captcha.jpg?id=" + Math.random(),
+            telephone: "",
+            code: "",
+            user: {
+                username: "",
+                password: "",
+                telephone: "",
+                email: "",
+            },
+        },
+        methods: {
+            sendSmsCode: function () {
+
+                $.ajax({
+                    url: "/sms-code",
+                    type: "get",
+                    data: { telephone: app.telephone },
+                    xhrFields: {
+            withCredentials: true
+        },
+
+                    success: function (req) {
+                        if (req.code == 200) {
+                            app.$message.success(req.msg);
+                            app.isDisabled = true;
+                            var interval = window.setInterval(function () {
+                                app.buttonName = '（' + app.time + '秒）后重新发送';
+                                --app.time;
+                                if (app.time < 0) {
+                                    app.buttonName = "重新发送";
+                                    app.time = 60;
+                                    app.isDisabled = false;
+                                    window.clearInterval(interval);
+                                }
+                            }, 1000);
+                        } else {
+                            app.$message.error(req.msg);
+                        }
+                    }
+                })
+            },
+            telephoneLogin: function () {
+                $.ajax({
+                    url: "/login-by-sms",
+                    type: "post",
+                    data: {
+                        telephone: app.telephone, code: app.code
+                    },
+                    xhrFields: {
+            withCredentials: true
+        },
+
+                    success: function (req) {
+                        if (req.code == 200) {
+                            window.location.href = "../";
+                        } else {
+                            app.$message.error(req.msg);
+                        }
+                    }
+                })
+            },
+            refreshImage: function () {
+                this.imgvalue = "/captcha.jpg?id=" + Math.random();
+            },
+            showUserTable: function () {
+                this.user = {
+                    username: "",
+                    password: "",
+                    telephone: "",
+                    email: ""
+                };
+                this.dialogFormVisible = true;
+            },
+            createUser: function () {
+                if (!this.userPattern.test(app.user.username)) {
+                    app.$message.error('用户名4到16位（字母，数字，下划线，减号）');
+                    return;
+                }
+                //密码最少6位，包括至少1个大写字母，1个小写字母，1个数字，1个特殊字符  
+                if (!this.passwordPattern.test(app.user.password)) {
+                    app.$message.error('密码最少6位，包括至少1个大写字母，1个小写字母，1个数字，1个特殊字符');
+                    return;
+                }
+
+                if (!this.emailPattern.test(app.user.email)) {
+                    app.$message.error('邮箱格式不对');
+                    return;
+                }
+
+                if (!this.phonePattern.test(app.user.telephone)) {
+                    app.$message.error('手机号不对');
+                    return;
+                }
+
+                $.ajax({
+                    url: http + "/user/registered",
+                    type: "post",
+                    data: {
+                        username: app.user.username,
+                        password: app.user.password,
+                        telephone: app.user.telephone,
+                        email: app.user.email,
+                    },
+                    xhrFields: {
+            withCredentials: true
+        },
+
+                    success: function (req) {
+                        if (req.code == 200) {
+                            app.$message.success(req.msg);
+                            app.dialogFormVisible = false;
+                            app.username = app.user.username;
+                        } else {
+                            app.$message.error(req.msg);
+                        }
+                    }
+                })
+            },
+            login: function () {
+                if (!this.userPattern.test(app.username)) {
+                    app.$message.error('用户名4到16位（字母，数字，下划线，减号）');
+                    return;
+                }
+                //密码最少6位，包括至少1个大写字母，1个小写字母，1个数字，1个特殊字符  
+                if (!this.passwordPattern.test(app.password)) {
+                    app.$message.error('密码最少6位，包括至少1个大写字母，1个小写字母，1个数字，1个特殊字符');
+                    return;
+                }
+                $.ajax({
+                    url: http + "/login",
+                    type: "post",
+                    data: { username: app.username, password: app.password, kaptcha: app.kaptcha },
+                    xhrFields: {
+            withCredentials: true
+        },
+
+                    success: function (req) {
+                        if (req.code == 200) {
+                            window.location.href = "../";
+                        } else {
+                            app.$message.error(req.msg);
+                        }
+                    }
+                })
+            },
+        }
+    })
+</script>
+
+</html>
