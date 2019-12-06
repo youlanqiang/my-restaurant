@@ -8,7 +8,7 @@
 #### 软件架构
 #### 后端
 - springboot
-- mybatisplus，
+- mybatisplus
 - mysql
 #### 前端
 - vue.js

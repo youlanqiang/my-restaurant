@@ -136,6 +136,7 @@
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 
+		
 		<!-- mysql plus -->
 		<dependency>
 			<groupId>com.baomidou</groupId>
