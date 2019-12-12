@@ -21,6 +21,16 @@ Mysql5.7服务器一台，配置文件为application-youlanqiang.yml，
 database文件夹中的orderproject.sql为sql文件
 
 
+账号：`root`
+密码：`Root123456?`
+
+#### 页面详情
+[![5RmPh.th.png](https://ww1.yunjiexi.club/2019/12/12/5RmPh.th.png)](https://www.hualigs.cn/image/5RmPh)
+[![5RpuB.th.png](https://ww1.yunjiexi.club/2019/12/12/5RpuB.th.png)](https://www.hualigs.cn/image/5RpuB)
+[![5R8Sj.th.png](https://ww1.yunjiexi.club/2019/12/12/5R8Sj.th.png)](https://www.hualigs.cn/image/5R8Sj)
+[![5RJgM.th.png](https://ww1.yunjiexi.club/2019/12/12/5RJgM.th.png)](https://www.hualigs.cn/image/5RJgM)
+[![5RE8U.th.png](https://ww1.yunjiexi.club/2019/12/12/5RE8U.th.png)](https://www.hualigs.cn/image/5RE8U)
+[![5RI93.th.png](https://ww1.yunjiexi.club/2019/12/12/5RI93.th.png)](https://www.hualigs.cn/image/5RI93)
 #### 作者
 youlanqiang@hotmail.com
 
