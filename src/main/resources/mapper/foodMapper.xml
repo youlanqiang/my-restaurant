@@ -2,21 +2,21 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.qjkji.orderproject.core.mapper.FoodMapper">
+<mapper namespace="top.youlanqiang.orderproject.core.mapper.FoodMapper">
 
 <!--    IPage<Food> pageByNameAndClassId(-->
 <!--    @Param("name") String name,-->
 <!--    @Param("cId") Integer classificationId,-->
 <!--    IPage<Food> page);-->
 
-    <resultMap id="food" type="com.qjkji.orderproject.core.entity.Food">
+    <resultMap id="food" type="top.youlanqiang.orderproject.core.entity.Food">
         <id  property="id" column="id"/>
         <result property="discount" column="discount"/>
         <result property="foodInfo" column="food_info"/>
         <result property="foodName" column="food_name"/>
         <result property="imgPath" column="img_path"/>
         <result property="price" column="price"/>
-        <collection  property="classifications" ofType="com.qjkji.orderproject.core.entity.Classification">
+        <collection  property="classifications" ofType="top.youlanqiang.orderproject.core.entity.Classification">
             <result  property="id" column="c_id" />
             <result  property="name" column="c_name"/>
         </collection>

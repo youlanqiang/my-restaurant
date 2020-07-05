@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.qjkji.orderproject.core.mapper.StatisticsMapper">
+<mapper namespace="top.youlanqiang.orderproject.core.mapper.StatisticsMapper">
 
 <!--    Integer selectNumberOfPeopleByDay(LocalDateTime dateTime);-->
         <select id="selectNumberOfPeopleByDay"  resultType="integer">
@@ -42,7 +42,7 @@
         </select>
 
 <!--    List<OrderFood> selectBestFoodByYearWithMonth(@Param("time") LocalDateTime time);-->
-        <select id="selectBestFoodByYearWithMonth" resultType="com.qjkji.orderproject.core.entity.OrderFood">
+        <select id="selectBestFoodByYearWithMonth" resultType="top.youlanqiang.orderproject.core.entity.OrderFood">
             SELECT
             b.food_id,
             b.food_name,
@@ -66,7 +66,7 @@
 
 <!--    List<OrderFood> selectWorstFoodByYearWithMonth(@Param("time") LocalDateTime time);-->
 
-    <select id="selectWorstFoodByYearWithMonth" resultType="com.qjkji.orderproject.core.entity.OrderFood">
+    <select id="selectWorstFoodByYearWithMonth" resultType="top.youlanqiang.orderproject.core.entity.OrderFood">
         SELECT
         b.food_id,
         b.food_name,
