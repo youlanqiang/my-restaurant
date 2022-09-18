@@ -11,7 +11,7 @@
  Target Server Version : 50735
  File Encoding         : 65001
 
- Date: 18/09/2022 11:45:39
+ Date: 18/09/2022 13:14:22
 */
 
 SET NAMES utf8mb4;
@@ -307,8 +307,8 @@ CREATE TABLE `user`  (
 -- Records of user
 -- ----------------------------
 INSERT INTO `user` VALUES (6, 'admin', '$2a$10$lerBTAfH0DtMWP39wZTGpOk7jCxPbb97nSAcr0UVCVMH.i3q1iV.q', '15558190392', 'admin@admin.com', '651174', 'admin', 0);
-INSERT INTO `user` VALUES (8, 'waiter001', '$2a$10$rj6I/dljFTuRdWIQOvTIxuoOp2OxfX5WdtzXwHYeEoZuuhBiPTq1u', '15558190333', 'waiter001@qq.com', NULL, 'root', 2);
+INSERT INTO `user` VALUES (8, 'waiter001', '$2a$10$6JLga4lHkbQfkQ6F3fPVMOl69WJC93kidy1nlnnt1kw7pEij7EzN2', '15558190333', 'waiter001@qq.com', NULL, 'root', 2);
 INSERT INTO `user` VALUES (10, 'root', '$2a$10$tDlWKyRQinpX.WHnsWYkIexX0R6iiQO.fVexMhY/Z85c7YPfkalza', '15558190331', 'root@qq.com', NULL, 'root', 0);
-INSERT INTO `user` VALUES (11, 'chef001', '$2a$10$jGCHw1VLegGJpQqfF02kN.H/3HscvQOwPBtcx5BEIMrz8Z20orlRe', '15558190322', 'chef001@qq.com', NULL, 'root', 1);
+INSERT INTO `user` VALUES (11, 'chef001', '$2a$10$90YwdkMxMklhyvn9u0fQXua7ximhu/p9Vs3vmc.nG8HY1Obave1xC', '15558190322', 'chef001@qq.com', NULL, 'root', 1);
 
 SET FOREIGN_KEY_CHECKS = 1;

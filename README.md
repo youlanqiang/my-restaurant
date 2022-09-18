@@ -20,8 +20,18 @@
 Mysql5.7服务器一台，配置文件为application-youlanqiang.yml，
 database文件夹中的orderproject.sql为sql文件
 
+管理员
 账号：`root`
 密码：`123456`
+
+服务员
+账号：`waiter001`
+密码：`123456`
+
+厨师
+账号：`chef001`
+密码：`123456`
+
 
 #### 作者
 youlanqiang@hotmail.com
