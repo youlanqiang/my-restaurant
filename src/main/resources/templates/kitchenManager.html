@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
@@ -13,59 +13,78 @@
     <script src="https://cdn.bootcss.com/decimal.js/10.2.0/decimal.min.js"></script>
     <script src="/js/config.js"></script>
     <style>
+        [v-cloak] {
+            display: none;
+        }
         .user-search {
             margin-top: 20px;
+        }
+        html,
+        body,
+        #app,
+        .el-container {
+            /*设置内部填充为0，几个布局元素之间没有间距*/
+            padding: 0px;
+            /*外部间距也是如此设置*/
+            margin: 0px;
+            /*统一设置高度为100%*/
+            height: 100%;
         }
     </style>
 </head>
 
 <body>
-    <div id="app">
-        <el-main>
-        <el-collapse v-model="activeName">
-            <el-collapse-item v-for="item in  list"
-                :title="'桌位:' + item.diningTable.name + '   开始时间:' + item.startDate + '   备注:' + item.remarks"
-                :name="item.id">
-                <el-form :inline="true" class="user-search">
-                    <el-form-item>
-                        <el-button type="success">提醒服务员上菜</el-button>
-                    </el-form-item>
-                    <el-form-item>
-                        <el-button type="primary">呼叫服务员</el-button>
-                    </el-form-item>
-                </el-form>
-                <el-table highlight-current-row border :data="item.foods">
-                    <el-table-column fixed prop="foodName" label="名称">
-                    </el-table-column>
-                    <el-table-column prop="singlePrice" label="单价">
-                    </el-table-column>
-                    <el-table-column prop="discount" label="折扣">
-                    </el-table-column>
-                    <el-table-column prop="realSinglePrice" label="折后价">
-                    </el-table-column>
-                    <el-table-column prop="returnMessage" label="退菜原因">
-                    </el-table-column>
-                    <el-table-column label="状态">
-                        <template slot-scope="scope">
+    <div id="app" v-cloak>
+        <el-container>
+            <div th:replace="template::controller"></div>
+            <el-container>
+                <el-main>
+                    <el-collapse v-model="activeName">
+                        <el-collapse-item v-for="item in  list"
+                                          :title="'桌位:' + item.diningTable.name + '   开始时间:' + item.startDate + '   备注:' + item.remarks"
+                                          :name="item.id">
+                            <el-form :inline="true" class="user-search">
+                                <el-form-item>
+                                    <el-button type="success">提醒服务员上菜</el-button>
+                                </el-form-item>
+                                <el-form-item>
+                                    <el-button type="primary">呼叫服务员</el-button>
+                                </el-form-item>
+                            </el-form>
+                            <el-table highlight-current-row border :data="item.foods">
+                                <el-table-column fixed prop="foodName" label="名称">
+                                </el-table-column>
+                                <el-table-column prop="singlePrice" label="单价">
+                                </el-table-column>
+                                <el-table-column prop="discount" label="折扣">
+                                </el-table-column>
+                                <el-table-column prop="realSinglePrice" label="折后价">
+                                </el-table-column>
+                                <el-table-column prop="returnMessage" label="退菜原因">
+                                </el-table-column>
+                                <el-table-column label="状态">
+                                    <template slot-scope="scope">
                             <span style="color: #F56C6C" v-if="scope.row.returnStatus">
                                 已退菜
                             </span>
-                            <span style="color: #67C23A" v-else-if="scope.row.status">
+                                        <span style="color: #67C23A" v-else-if="scope.row.status">
                                 以上齐
                             </span>
-                            <span style="color: #E6A23C" v-else>
+                                        <span style="color: #E6A23C" v-else>
                                 未上齐
                             </span>
-                        </template>
-                    </el-table-column>
-                    <el-table-column prop="amount" label="数量">
-                    </el-table-column>
-                </el-table>
-            </el-collapse-item>
-        </el-collapse>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column prop="amount" label="数量">
+                                </el-table-column>
+                            </el-table>
+                        </el-collapse-item>
+                    </el-collapse>
 
-        <el-backtop target=".page-component__scroll .el-scrollbar__wrap"></el-backtop>
-    </el-main>
+                    <el-backtop target=".page-component__scroll .el-scrollbar__wrap"></el-backtop>
+                </el-main>
+            </el-container>
+        </el-container>
     </div>
 
 </body>
@@ -121,7 +140,7 @@
                 this.shopName = 'root';
 
                 if ('WebSocket' in window) {
-                    this.sock = new WebSocket("ws://192.168.2.129:8181/kitchen/" + this.shopName);
+                    this.sock = new WebSocket("ws://"+window.location.host+"/kitchen/" + this.shopName);
                     this.sock.onopen = this.onOpen;
                     this.sock.onclose = this.onClose;
                     // 监听socket错误信息
