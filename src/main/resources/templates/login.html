@@ -17,116 +17,126 @@
     [v-cloak] {
         display: none;
     }
-
-    html,
-    body,
-    #app,
-    .el-container {
-        /*设置内部填充为0，几个布局元素之间没有间距*/
-        padding: 0px;
-        /*外部间距也是如此设置*/
-        margin: 3px;
-        /*统一设置高度为100%*/
-        height: 100%;
-    }
-
-    #app {
-        /* 外面div宽高 */
-        width: 300px;
-        height: 430px;
-        padding-top: 50px;
-        padding-left: 30px;
-        padding-right: 50px;
+    .login {
         display: flex;
-        border: 1px solid #333333;
-        display: -webkit-flex;
         justify-content: center;
         align-items: center;
-        position: absolute;
-        left: 50%;
-        top: 20%;
-        background-color: #FFFFFF;
-        border-radius: 10px 10px 10px 10px;
+        height: 100%;
+        background-size: cover;
     }
+    .title {
+        margin: 0px auto 30px auto;
+        text-align: center;
+        color: #707070;
+    }
+
+    .login-form {
+        border-radius: 6px;
+        background: #ffffff;
+        width: 400px;
+        padding: 25px 25px 5px 25px;
+        margin-top: 15%;
+    }
+    .login-form .el-input{
+        height: 38px;
+    }
+    .login-form .el-input input{
+        height: 38px;
+    }
+    .input-icon {
+        height: 39px;
+        width: 14px;
+        margin-left: 2px;
+    }
+    .login-tip {
+        font-size: 13px;
+        text-align: center;
+        color: #bfbfbf;
+    }
+    .login-code {
+        width: 33%;
+        height: 38px;
+        float: right;
+    }
+    .login-code img {
+        cursor: pointer;
+        vertical-align: middle;
+    }
+    .el-login-footer {
+        height: 40px;
+        line-height: 40px;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        text-align: center;
+        color: #fff;
+        font-family: Arial;
+        font-size: 12px;
+        letter-spacing: 1px;
+    }
+    .login-code-img {
+        height: 38px;
+    }
+
+
 </style>
 
-<body style="background-image:url(/img/timg.jpg);
+<body style="background-image:url(/img/background.png);
 background-repeat:no-repeat ;
 background-size:100% 100%;
 background-attachment: fixed;">
     <div id="app" v-cloak>
         <template>
-            <div class="hello">
-                <el-tabs v-model="activeName">
-                    <el-tab-pane label="用户名登陆" name="first" :key="'first'">
-                        <div style="background: yellow; display: inline">
-                            <el-main style="height: 390px;">
-                                <el-form label-width="80px">
-                                    <el-form-item label="用户名">
-                                        <el-input v-model="username" type="text" placeholder="请输入用户名"></el-input>
-                                    </el-form-item>
-                                    <el-form-item label="密码">
-                                        <el-input show-password v-model="password" type="text" placeholder="请输入密码">
-                                        </el-input>
-                                    </el-form-item>
-                                    <el-form-item label="验证码">
-                                        <el-input v-model="kaptcha"></el-input>
-                                    </el-form-item>
-
-                                    <el-form :inline="true">
-                                        <el-form-item>
-                                            <el-button size="mini" type="primary" @click="refreshImage"
-                                                icon="el-icon-refresh" style="position: relative;">刷新
-                                            </el-button>
-                                        </el-form-item>
-                                        <el-form-item>
-                                            <el-image style="width: 150px" :src="imgvalue" fit="fill"></el-image>
-                                        </el-form-item>
-                                    </el-form>
-
-                                    <el-form-item>
-                                        <el-button type="primary" @click="login"
-                                            style="width: 200px; position: relative; left: -40px; border-radius: 30px 30px 30px 30px; ">
-                                            登 陆</el-button><br>
-                                        <el-button @click="showUserTable"
-                                            style=" width: 200px; position: relative;left: -40px; top: 10px;border-radius: 30px 30px 30px 30px;">
-                                            注 册</el-button>
-                                    </el-form-item>
-                                </el-form>
-                            </el-main>
+            <div class="login">
+                <el-form ref="loginForm"  class="login-form">
+                    <h3 class="title">餐厅管理系统</h3>
+                    <el-form-item prop="username">
+                        <el-input
+                                v-model="username"
+                                type="text"
+                                auto-complete="off"
+                                placeholder="账号"
+                        >
+                            <svg-icon slot="prefix" icon-class="user" class="el-input__icon input-icon" />
+                        </el-input>
+                    </el-form-item>
+                    <el-form-item prop="password">
+                        <el-input
+                                v-model="password"
+                                type="password"
+                                auto-complete="off"
+                                placeholder="密码"
+                        >
+                            <svg-icon slot="prefix" icon-class="password" class="el-input__icon input-icon" />
+                        </el-input>
+                    </el-form-item>
+                    <el-form-item prop="code" >
+                        <el-input
+                                v-model="kaptcha"
+                                auto-complete="off"
+                                placeholder="验证码"
+                                style="width: 63%"
+                        >
+                            <svg-icon slot="prefix" icon-class="validCode" class="el-input__icon input-icon" />
+                        </el-input>
+                        <div class="login-code">
+                            <img :src="imgvalue" @click="refreshImage" class="login-code-img"/>
                         </div>
-                    </el-tab-pane>
-
-
-                    <el-tab-pane label="手机号登陆" name="second" :key="'second'">
-                        <div style="height: 800px; background: green; display: inline;">
-                            <el-main style="height: 390px;">
-                                <el-form label-width="100px">
-                                    <el-form-item label="手机号">
-                                        <el-input v-model="telephone" type="text" placeholder="请输入手机号"></el-input>
-                                    </el-form-item>
-                                    <el-form-item label="验证码">
-
-                                        <el-input v-model="code" type="text" placeholder="请输入验证码"></el-input>
-                                    </el-form-item>
-                                    <el-form-item>
-
-                                        <el-button type="primary" :disabled="isDisabled" @click="sendSmsCode">
-                                            {{buttonName}}</el-button>
-                                    </el-form-item>
-                                    <el-form-item>
-                                        <el-button type="primary" @click="telephoneLogin"
-                                            style="width: 200px; position: relative; left: -40px; border-radius: 30px 30px 30px 30px; ">
-                                            登 陆</el-button><br>
-                                        <el-button @click="showUserTable"
-                                            style="width: 200px; position: relative;left: -40px; top: 10px;border-radius: 30px 30px 30px 30px;">
-                                            注 册</el-button>
-                                    </el-form-item>
-                                </el-form>
-                            </el-main>
+                    </el-form-item>
+                    <el-form-item style="width:100%;">
+                        <el-button
+                                size="medium"
+                                type="primary"
+                                style="width:100%;"
+                                @click="login"
+                        >
+                            登录
+                        </el-button>
+                        <div style="float: right;">
+                            <el-button class="link-type" type="text"  @click="showUserTable">立即注册</el-button>
                         </div>
-                    </el-tab-pane>
-                </el-tabs>
+                    </el-form-item>
+                </el-form>
             </div>
         </template>
         <el-dialog title="注册" :visible.sync="dialogFormVisible">
@@ -248,10 +258,10 @@ background-attachment: fixed;">
                     return;
                 }
                 //密码最少6位，包括至少1个大写字母，1个小写字母，1个数字，1个特殊字符  
-                if (!this.passwordPattern.test(app.user.password)) {
-                    app.$message.error('密码最少6位，包括至少1个大写字母，1个小写字母，1个数字，1个特殊字符');
-                    return;
-                }
+                // if (!this.passwordPattern.test(app.user.password)) {
+                //     app.$message.error('密码最少6位，包括至少1个大写字母，1个小写字母，1个数字，1个特殊字符');
+                //     return;
+                // }
 
                 if (!this.emailPattern.test(app.user.email)) {
                     app.$message.error('邮箱格式不对');
