@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Collections;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -22,7 +23,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("账号不存在");
         }
-        user.setAuthorities(new ArrayList<>());
+        user.setAuthorities(Collections.emptyList());
         return user;
     }
 

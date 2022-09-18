@@ -55,7 +55,8 @@ public class User implements UserDetails {
 
 
     /**
-     * 类型
+     * 类型 0=管理员 1=厨师 2=服务员
+     * EmployeeType
      */
     private Integer type;
 

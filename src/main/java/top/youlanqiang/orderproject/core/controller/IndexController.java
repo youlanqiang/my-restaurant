@@ -132,10 +132,6 @@ public class IndexController {
             return "login";
         }
 
-        User user = userService.getUserByName(userName);
-        if(user.getType().equals(EmployeeType.chef.getType())){
-            return "kitchenManager";
-        }
         return "frontManager";
     }
 
@@ -147,10 +143,7 @@ public class IndexController {
         if(userName == null || userName.trim().isEmpty() || userName.equals("anonymousUser")){
             return "login";
         }
-        User user = userService.getUserByName(userName);
-        if(user.getType().equals(EmployeeType.chef.getType())){
-            return "kitchenManager";
-        }
+
         return "frontManager";
     }
 
@@ -161,10 +154,7 @@ public class IndexController {
         if(userName == null || userName.trim().isEmpty() || userName.equals("anonymousUser")){
             return "login";
         }
-        User user = userService.getUserByName(userName);
-        if(user.getType().equals(EmployeeType.chef.getType())){
-            return "kitchenManager";
-        }
+
         return "userManager";
     }
 
@@ -176,10 +166,7 @@ public class IndexController {
         if(userName == null || userName.trim().isEmpty() || userName.equals("anonymousUser")){
             return "login";
         }
-        User user = userService.getUserByName(userName);
-        if(user.getType().equals(EmployeeType.chef.getType())){
-            return "kitchenManagers";
-        }
+
         return "foodManager";
     }
 
@@ -191,10 +178,6 @@ public class IndexController {
 
         if(userName == null || userName.trim().isEmpty() || userName.equals("anonymousUser")){
             return "login";
-        }
-        User user = userService.getUserByName(userName);
-        if(user.getType().equals(EmployeeType.chef.getType())){
-            return "kitchenManager";
         }
         return "reservationManager";
     }
@@ -208,10 +191,7 @@ public class IndexController {
         if(userName == null || userName.trim().isEmpty() || userName.equals("anonymousUser")){
             return "login";
         }
-        User user = userService.getUserByName(userName);
-        if(user.getType().equals(EmployeeType.chef.getType())){
-            return "kitchenManager";
-        }
+
         return "orderManager";
     }
 
@@ -221,10 +201,6 @@ public class IndexController {
         String userName= SecurityUtil.getUserName();
         if(userName == null || userName.trim().isEmpty() || userName.equals("anonymousUser")){
             return "login";
-        }
-        User user = userService.getUserByName(userName);
-        if(user.getType().equals(EmployeeType.chef.getType())){
-            return "kitchenManager";
         }
         return "statisticsManager";
     }
@@ -238,10 +214,6 @@ public class IndexController {
 
         if(userName == null || userName.trim().isEmpty() || userName.equals("anonymousUser")){
             return "login";
-        }
-        User user = userService.getUserByName(userName);
-        if(user.getType().equals(EmployeeType.chef.getType())){
-            return "kitchenManager";
         }
         return "myinfo";
     }

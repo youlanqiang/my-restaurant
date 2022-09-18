@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
@@ -8,10 +8,14 @@
     <title>模板</title>
 
 </head>
+<script>
+
+</script>
 <body>
 <!--background-color="#545c64"-->
 
 <div th:fragment="controller">
+
     <el-aside width="200px" style="background-color: #545c64;height:100%; margin:0px;">
         <el-menu
                 background-color="#545c64"
@@ -21,38 +25,80 @@
             <div style="padding: 20px 0px;text-align: center;font-size: 20px;color: #9d9d9d;line-height: 40px;height: 40px;">
                 <img style="height:40px;" th:src="@{/img/logo.png}" alt="">
             </div>
-            <el-menu-item @click="window.location.href = '../front'" index="1">
-                <i class="el-icon-menu"></i>
-                <span slot="title">前台管理</span>
-            </el-menu-item>
-            <el-menu-item @click="window.location.href = '../food'" index="2">
-                <i class="el-icon-goods"></i>
-                <span slot="title">菜品管理</span>
-            </el-menu-item>
-            <el-menu-item @click="window.location.href = '../order'" index="3">
-                <i class="el-icon-tickets"></i>
-                <span slot="title">订单管理</span>
-            </el-menu-item>
-            <el-menu-item @click="window.location.href = '../reservation'" index="4">
-                <i class="el-icon-phone"></i>
-                <span slot="title">预约管理</span>
-            </el-menu-item>
-            <el-menu-item @click="window.location.href = '../statistics'" index="4">
-                <i class="el-icon-data-analysis"></i>
-                <span slot="title">统计信息</span>
-            </el-menu-item>
-            <el-menu-item @click="window.location.href = '../myinfo'" index="4">
-                <i class="el-icon-user"></i>
-                <span slot="title">我的信息</span>
-            </el-menu-item>
-            <el-menu-item @click="window.location.href = '../userManager'" index="4">
-                <i class="el-icon-notebook-1"></i>
-                <span slot="title">员工信息</span>
-            </el-menu-item>
-            <el-menu-item @click="window.location.href = '../user/logout'" index="4">
-                <i class="el-icon-circle-close"></i>
-                <span slot="title">退出</span>
-            </el-menu-item>
+
+            <!-- 管理员有全部的权限 -->
+            <div th:if="${session.SPRING_SECURITY_CONTEXT.authentication.principal.type} == 0">
+                <el-menu-item @click="window.location.href = '../front'" index="1">
+                    <i class="el-icon-menu"></i>
+                    <span slot="title">前台管理</span>
+                </el-menu-item>
+                <el-menu-item @click="window.location.href = '../mykitchen'" index="2">
+                    <i class="el-icon-bell"></i>
+                    <span slot="title">后厨管理</span>
+                </el-menu-item>
+                <el-menu-item @click="window.location.href = '../food'" index="3">
+                    <i class="el-icon-goods"></i>
+                    <span slot="title">菜品管理</span>
+                </el-menu-item>
+                <el-menu-item @click="window.location.href = '../order'" index="4">
+                    <i class="el-icon-tickets"></i>
+                    <span slot="title">订单管理</span>
+                </el-menu-item>
+                <el-menu-item @click="window.location.href = '../reservation'" index="5">
+                    <i class="el-icon-phone"></i>
+                    <span slot="title">预约管理</span>
+                </el-menu-item>
+                <el-menu-item @click="window.location.href = '../statistics'" index="6">
+                    <i class="el-icon-data-analysis"></i>
+                    <span slot="title">统计信息</span>
+                </el-menu-item>
+                <el-menu-item @click="window.location.href = '../myinfo'" index="7">
+                    <i class="el-icon-user"></i>
+                    <span slot="title">我的信息</span>
+                </el-menu-item>
+                <el-menu-item @click="window.location.href = '../userManager'" index="8">
+                    <i class="el-icon-notebook-1"></i>
+                    <span slot="title">员工信息</span>
+                </el-menu-item>
+                <el-menu-item @click="window.location.href = '../user/logout'" index="9">
+                    <i class="el-icon-circle-close"></i>
+                    <span slot="title">退出</span>
+                </el-menu-item>
+            </div>
+
+            <!-- 厨师端权限 -->
+            <div th:if="${session.SPRING_SECURITY_CONTEXT.authentication.principal.type} == 1">
+                <el-menu-item @click="window.location.href = '../mykitchen'" index="1">
+                    <i class="el-icon-bell"></i>
+                    <span slot="title">后厨管理</span>
+                </el-menu-item>
+                <el-menu-item @click="window.location.href = '../myinfo'" index="1">
+                    <i class="el-icon-user"></i>
+                    <span slot="title">我的信息</span>
+                </el-menu-item>
+                <el-menu-item @click="window.location.href = '../user/logout'" index="2">
+                    <i class="el-icon-circle-close"></i>
+                    <span slot="title">退出</span>
+                </el-menu-item>
+            </div>
+
+            <!-- 服务员端权限 -->
+            <div th:if="${session.SPRING_SECURITY_CONTEXT.authentication.principal.type} == 2">
+                <el-menu-item @click="window.location.href = '../front'" index="1">
+                    <i class="el-icon-menu"></i>
+                    <span slot="title">前台管理</span>
+                </el-menu-item>
+                <el-menu-item @click="window.location.href = '../myinfo'" index="2">
+                    <i class="el-icon-user"></i>
+                    <span slot="title">我的信息</span>
+                </el-menu-item>
+                <el-menu-item @click="window.location.href = '../user/logout'" index="3">
+                    <i class="el-icon-circle-close"></i>
+                    <span slot="title">退出</span>
+                </el-menu-item>
+            </div>
+
+
         </el-menu>
     </el-aside>
 </div>
