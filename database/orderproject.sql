@@ -1,17 +1,17 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : localhost
+ Source Server         : rocky
  Source Server Type    : MySQL
- Source Server Version : 50725
- Source Host           : localhost:3306
+ Source Server Version : 50735
+ Source Host           : 192.168.220.128:3306
  Source Schema         : orderproject
 
  Target Server Type    : MySQL
- Target Server Version : 50725
+ Target Server Version : 50735
  File Encoding         : 65001
 
- Date: 06/09/2019 09:05:08
+ Date: 18/09/2022 11:45:39
 */
 
 SET NAMES utf8mb4;
@@ -21,41 +21,38 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- Table structure for classification
 -- ----------------------------
 DROP TABLE IF EXISTS `classification`;
-CREATE TABLE `classification` (
+CREATE TABLE `classification`  (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `shop_name` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
+  `shop_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 33 CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of classification
 -- ----------------------------
-BEGIN;
 INSERT INTO `classification` VALUES (30, '进口海鲜', 'root');
 INSERT INTO `classification` VALUES (31, '家常菜', 'root');
 INSERT INTO `classification` VALUES (32, '西餐', 'root');
-COMMIT;
 
 -- ----------------------------
 -- Table structure for dining_table
 -- ----------------------------
 DROP TABLE IF EXISTS `dining_table`;
-CREATE TABLE `dining_table` (
+CREATE TABLE `dining_table`  (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `capacity` int(255) DEFAULT NULL,
-  `open` tinyint(255) DEFAULT NULL,
-  `used` tinyint(255) DEFAULT NULL,
-  `order_id` int(11) DEFAULT NULL,
-  `shop_name` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
+  `capacity` int(255) NULL DEFAULT NULL,
+  `open` tinyint(255) NULL DEFAULT NULL,
+  `used` tinyint(255) NULL DEFAULT NULL,
+  `order_id` int(11) NULL DEFAULT NULL,
+  `shop_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 14 CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of dining_table
 -- ----------------------------
-BEGIN;
 INSERT INTO `dining_table` VALUES (1, '1号桌', 10, 1, 0, 0, 'root');
 INSERT INTO `dining_table` VALUES (2, '2号桌', 6, 1, 0, 0, 'root');
 INSERT INTO `dining_table` VALUES (3, '3号桌', 6, 1, 0, 0, 'root');
@@ -66,29 +63,26 @@ INSERT INTO `dining_table` VALUES (7, '7号桌', 6, 1, 0, NULL, 'root');
 INSERT INTO `dining_table` VALUES (8, '8号桌', 6, 1, 0, NULL, 'root');
 INSERT INTO `dining_table` VALUES (9, '9号桌', 6, 1, 0, NULL, 'root');
 INSERT INTO `dining_table` VALUES (10, '10号桌', 6, 1, 0, NULL, 'root');
-INSERT INTO `dining_table` VALUES (12, '铁王座', 1, 1, 0, 0, 'root');
 INSERT INTO `dining_table` VALUES (13, '一号桌子', 2, 1, 0, NULL, 'admin');
-COMMIT;
 
 -- ----------------------------
 -- Table structure for food
 -- ----------------------------
 DROP TABLE IF EXISTS `food`;
-CREATE TABLE `food` (
+CREATE TABLE `food`  (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `food_name` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `food_info` text COLLATE utf8_bin,
-  `price` decimal(10,2) DEFAULT NULL,
-  `discount` decimal(10,2) DEFAULT NULL,
-  `img_path` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `shop_name` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=55 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+  `food_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
+  `food_info` text CHARACTER SET utf8 COLLATE utf8_bin NULL,
+  `price` decimal(10, 2) NULL DEFAULT NULL,
+  `discount` decimal(10, 2) NULL DEFAULT NULL,
+  `img_path` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
+  `shop_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 55 CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of food
 -- ----------------------------
-BEGIN;
 INSERT INTO `food` VALUES (47, '澳洲大龙虾', '澳洲进口大龙虾', 899.90, 1.00, 'deb55c8079194257b1a954b5e7050f24.jpeg', 'root');
 INSERT INTO `food` VALUES (49, '冰岛甜虾', '10只', 299.90, 1.00, '33b7bd1d5a584f8890bb095f18c5356d.jpeg', 'root');
 INSERT INTO `food` VALUES (50, '澳洲帝王蟹', '499kg', 733.60, 0.90, 'd31bf88ec1994e9d872de94cfc7dc8da.jpeg', 'root');
@@ -96,21 +90,19 @@ INSERT INTO `food` VALUES (51, '人工养殖中华鲟', '真的是家养的', 99
 INSERT INTO `food` VALUES (52, '鱼香肉丝', '鱼香肉丝（Yuxiang shredded pork(sauteed in spicy garlic sauce） [1]  ，是一道汉族特色传统名菜，以鱼香味调味而得名，属于川菜。相传灵感来自泡椒肉丝，民国年间则是由四川籍厨师创制而成', 35.00, 0.80, '314b71a07a284326931164c8c42e3a5a.jpg', 'root');
 INSERT INTO `food` VALUES (53, '麻婆豆腐', '是四川省传统名菜之一，属于川菜。主要原料为配料和豆腐', 18.00, 1.00, '1913fcae2f724a71a75bbda6e3211759.jpg', 'root');
 INSERT INTO `food` VALUES (54, '牛排', '牛排，或称牛扒，是块状的牛肉，是西餐中最常见的食物之一。', 100.00, 1.00, '91d1ebf423d54186b12de9306738f76e.jpg', 'root');
-COMMIT;
 
 -- ----------------------------
 -- Table structure for food_class
 -- ----------------------------
 DROP TABLE IF EXISTS `food_class`;
-CREATE TABLE `food_class` (
-  `food_id` int(11) DEFAULT NULL,
-  `classification_id` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+CREATE TABLE `food_class`  (
+  `food_id` int(11) NULL DEFAULT NULL,
+  `classification_id` int(11) NULL DEFAULT NULL
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of food_class
 -- ----------------------------
-BEGIN;
 INSERT INTO `food_class` VALUES (51, 30);
 INSERT INTO `food_class` VALUES (50, 30);
 INSERT INTO `food_class` VALUES (49, 30);
@@ -119,30 +111,28 @@ INSERT INTO `food_class` VALUES (52, 31);
 INSERT INTO `food_class` VALUES (53, 31);
 INSERT INTO `food_class` VALUES (54, 32);
 INSERT INTO `food_class` VALUES (54, 31);
-COMMIT;
 
 -- ----------------------------
 -- Table structure for order_food
 -- ----------------------------
 DROP TABLE IF EXISTS `order_food`;
-CREATE TABLE `order_food` (
+CREATE TABLE `order_food`  (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `order_id` int(11) DEFAULT NULL,
-  `food_id` int(11) DEFAULT NULL,
-  `food_name` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `single_price` decimal(10,2) DEFAULT NULL,
-  `discount` decimal(10,2) DEFAULT NULL,
-  `amount` int(10) DEFAULT NULL,
-  `status` tinyint(2) DEFAULT NULL,
-  `return_status` tinyint(2) DEFAULT NULL,
-  `return_message` text COLLATE utf8_bin,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=71 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+  `order_id` int(11) NULL DEFAULT NULL,
+  `food_id` int(11) NULL DEFAULT NULL,
+  `food_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
+  `single_price` decimal(10, 2) NULL DEFAULT NULL,
+  `discount` decimal(10, 2) NULL DEFAULT NULL,
+  `amount` int(10) NULL DEFAULT NULL,
+  `status` tinyint(2) NULL DEFAULT NULL,
+  `return_status` tinyint(2) NULL DEFAULT NULL,
+  `return_message` text CHARACTER SET utf8 COLLATE utf8_bin NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 71 CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of order_food
 -- ----------------------------
-BEGIN;
 INSERT INTO `order_food` VALUES (1, 5, 4, '阿萨德', 100.00, 1.00, 1, 0, 0, NULL);
 INSERT INTO `order_food` VALUES (2, 5, 5, '萨德', 100.00, 1.00, 1, 0, 0, NULL);
 INSERT INTO `order_food` VALUES (3, 5, 6, '萨', 100.00, 1.00, 1, 0, 0, NULL);
@@ -213,34 +203,32 @@ INSERT INTO `order_food` VALUES (67, 27, 54, '牛排', 100.00, 1.00, 1, 0, 1, '�
 INSERT INTO `order_food` VALUES (68, 29, 53, '麻婆豆腐', 18.00, 1.00, 1, 0, 0, NULL);
 INSERT INTO `order_food` VALUES (69, 29, 54, '牛排', 100.00, 1.00, 1, 0, 0, NULL);
 INSERT INTO `order_food` VALUES (70, 29, 52, '鱼香肉丝', 35.00, 0.80, 1, 0, 0, NULL);
-COMMIT;
 
 -- ----------------------------
 -- Table structure for orders
 -- ----------------------------
 DROP TABLE IF EXISTS `orders`;
-CREATE TABLE `orders` (
+CREATE TABLE `orders`  (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `payment_type` int(10) DEFAULT NULL,
-  `payment_price` decimal(10,2) DEFAULT NULL,
-  `actual_amount` decimal(10,2) DEFAULT NULL,
-  `table_id` int(11) DEFAULT NULL,
-  `number_of_people` int(11) DEFAULT NULL,
-  `status` tinyint(2) DEFAULT NULL,
-  `remarks` text COLLATE utf8_bin,
-  `start_date` datetime DEFAULT NULL,
-  `end_date` datetime DEFAULT NULL,
-  `payment_status` tinyint(2) DEFAULT NULL,
-  `client_name` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `shop_name` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `online_code` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+  `payment_type` int(10) NULL DEFAULT NULL,
+  `payment_price` decimal(10, 2) NULL DEFAULT NULL,
+  `actual_amount` decimal(10, 2) NULL DEFAULT NULL,
+  `table_id` int(11) NULL DEFAULT NULL,
+  `number_of_people` int(11) NULL DEFAULT NULL,
+  `status` tinyint(2) NULL DEFAULT NULL,
+  `remarks` text CHARACTER SET utf8 COLLATE utf8_bin NULL,
+  `start_date` datetime(0) NULL DEFAULT NULL,
+  `end_date` datetime(0) NULL DEFAULT NULL,
+  `payment_status` tinyint(2) NULL DEFAULT NULL,
+  `client_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
+  `shop_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
+  `online_code` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 31 CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of orders
 -- ----------------------------
-BEGIN;
 INSERT INTO `orders` VALUES (1, 1, 300.00, 0.00, 1, 7, 1, '不要放辣', '2019-08-13 10:13:54', '2019-08-14 13:59:56', 1, '客户', 'root', NULL);
 INSERT INTO `orders` VALUES (2, 1, 400.00, 0.00, 2, 6, 1, '不要放辣', '2019-08-13 10:13:57', '2019-08-14 13:59:59', 1, '客户', 'root', NULL);
 INSERT INTO `orders` VALUES (3, 2, 600.00, 0.00, 3, 6, 1, '多放辣', '2019-08-13 11:00:27', '2019-08-14 14:00:01', 1, '客户', 'root', NULL);
@@ -266,29 +254,28 @@ INSERT INTO `orders` VALUES (26, 3, 100.00, 100.00, 4, 2, 1, '', '2019-08-27 16:
 INSERT INTO `orders` VALUES (27, 3, 500.00, 500.00, 1, 2, 1, '', '2019-09-02 10:10:59', '2019-09-02 14:43:45', 1, '顾客', 'root', NULL);
 INSERT INTO `orders` VALUES (28, 3, 46.00, 46.00, 2, 2, 1, '', '2019-09-02 11:33:29', '2019-09-02 14:38:13', 1, '顾客', 'root', NULL);
 INSERT INTO `orders` VALUES (29, 3, 146.00, 146.00, 1, 2, 1, '', '2019-09-02 14:54:49', '2019-09-02 14:54:57', 1, '顾客', 'root', NULL);
-COMMIT;
+INSERT INTO `orders` VALUES (30, 3, 100.00, 0.00, 1, 2, 1, '', '2022-09-14 20:46:00', '2022-09-14 20:46:13', 1, '顾客', 'root', NULL);
 
 -- ----------------------------
 -- Table structure for reservation_info
 -- ----------------------------
 DROP TABLE IF EXISTS `reservation_info`;
-CREATE TABLE `reservation_info` (
+CREATE TABLE `reservation_info`  (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `start_date` datetime DEFAULT NULL,
-  `end_date` datetime DEFAULT NULL,
-  `number_of_people` int(11) DEFAULT NULL,
-  `table_id` int(11) DEFAULT NULL,
-  `client_name` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `client_tel` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `status` int(255) DEFAULT NULL,
-  `shop_name` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+  `start_date` datetime(0) NULL DEFAULT NULL,
+  `end_date` datetime(0) NULL DEFAULT NULL,
+  `number_of_people` int(11) NULL DEFAULT NULL,
+  `table_id` int(11) NULL DEFAULT NULL,
+  `client_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
+  `client_tel` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
+  `status` int(255) NULL DEFAULT NULL,
+  `shop_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of reservation_info
 -- ----------------------------
-BEGIN;
 INSERT INTO `reservation_info` VALUES (2, '2019-08-13 14:30:00', '2019-08-13 15:30:00', 7, 1, '琪琪国王', '15758130392', 3, 'root');
 INSERT INTO `reservation_info` VALUES (3, '2019-08-13 14:30:00', '2019-08-13 15:30:00', 7, 1, '琪琪国王', '15758130392', 3, 'root');
 INSERT INTO `reservation_info` VALUES (4, '2019-08-13 14:30:00', '2019-08-13 15:30:00', 7, 1, '琪琪国王', '15758130392', 3, 'root');
@@ -299,33 +286,29 @@ INSERT INTO `reservation_info` VALUES (8, '2019-08-14 14:30:00', '2019-08-14 16:
 INSERT INTO `reservation_info` VALUES (9, '2019-08-14 16:30:00', '2019-08-14 17:30:00', 2, 7, '顾客', '123123', 2, 'root');
 INSERT INTO `reservation_info` VALUES (10, '2019-08-16 14:30:00', '2019-08-16 15:30:00', 2, 2, '卢本伟', '1232131', 2, 'root');
 INSERT INTO `reservation_info` VALUES (11, '2019-08-20 14:30:00', '2019-08-20 15:30:00', 2, 1, '顾客', '123123', 3, 'root');
-COMMIT;
 
 -- ----------------------------
 -- Table structure for user
 -- ----------------------------
 DROP TABLE IF EXISTS `user`;
-CREATE TABLE `user` (
+CREATE TABLE `user`  (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `username` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `password` longtext COLLATE utf8_bin,
-  `telephone` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `email` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `code` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `shop_name` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `type` int(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+  `username` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
+  `password` longtext CHARACTER SET utf8 COLLATE utf8_bin NULL,
+  `telephone` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
+  `email` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
+  `code` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
+  `shop_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
+  `type` int(255) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of user
 -- ----------------------------
-BEGIN;
 INSERT INTO `user` VALUES (6, 'admin', '$2a$10$lerBTAfH0DtMWP39wZTGpOk7jCxPbb97nSAcr0UVCVMH.i3q1iV.q', '15558190392', 'admin@admin.com', '651174', 'admin', 0);
 INSERT INTO `user` VALUES (8, 'waiter001', '$2a$10$rj6I/dljFTuRdWIQOvTIxuoOp2OxfX5WdtzXwHYeEoZuuhBiPTq1u', '15558190333', 'waiter001@qq.com', NULL, 'root', 2);
-INSERT INTO `user` VALUES (9, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (10, 'root', '$2a$10$dn8KDqOFclq8V6vFj78GQ.V3YPi67KC2xc.SFBftAn.K8bfV0jc82', '15558190331', 'root@qq.com', NULL, 'root', 0);
+INSERT INTO `user` VALUES (10, 'root', '$2a$10$tDlWKyRQinpX.WHnsWYkIexX0R6iiQO.fVexMhY/Z85c7YPfkalza', '15558190331', 'root@qq.com', NULL, 'root', 0);
 INSERT INTO `user` VALUES (11, 'chef001', '$2a$10$jGCHw1VLegGJpQqfF02kN.H/3HscvQOwPBtcx5BEIMrz8Z20orlRe', '15558190322', 'chef001@qq.com', NULL, 'root', 1);
-COMMIT;
 
 SET FOREIGN_KEY_CHECKS = 1;

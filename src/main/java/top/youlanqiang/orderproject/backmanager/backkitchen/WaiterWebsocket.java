@@ -27,7 +27,7 @@ public class WaiterWebsocket {
     private static ConcurrentHashMap<String, CopyOnWriteArrayList<Session>> map
             = new ConcurrentHashMap<>();
 
-    private static AtomicInteger count = new AtomicInteger(0);
+    private static final AtomicInteger count = new AtomicInteger(0);
 
     private Session session;
 

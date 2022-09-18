@@ -77,15 +77,16 @@
         },
         methods: {
             changePassword: function () {
-                if (!this.passwordPattern.test(app.oldpassword)) {
-                    app.$message.error('密码最少6位，包括至少1个大写字母，1个小写字母，1个数字，1个特殊字符');
-                    return;
-                }
-                if (!this.passwordPattern.test(app.newpassword)) {
-                    app.$message.error('密码最少6位，包括至少1个大写字母，1个小写字母，1个数字，1个特殊字符');
-                    return;
-                }
-                if (oldpassword == newpassword) {
+                // if (!this.passwordPattern.test(app.oldpassword)) {
+                //     app.$message.error('密码最少6位，包括至少1个大写字母，1个小写字母，1个数字，1个特殊字符');
+                //     return;
+                // }
+                // if (!this.passwordPattern.test(app.newpassword)) {
+                //     app.$message.error('密码最少6位，包括至少1个大写字母，1个小写字母，1个数字，1个特殊字符');
+                //     return;
+                // }
+
+                if (app.oldpassword === app.newpassword) {
                     app.$message.error('密码不能相同');
                     return;
                 }
