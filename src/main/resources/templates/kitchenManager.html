@@ -161,7 +161,7 @@
                             app.shopName = req.data.shopName;
 
                             if ('WebSocket' in window) {
-                                app.sock = new WebSocket("ws://192.168.2.129:8181/kitchen/" + app.shopName);
+                                app.sock = new WebSocket("ws://"+window.location.host+"/kitchen/" + this.shopName);
                                 app.sock.onopen = app.onOpen;
                                 app.sock.onclose = app.onClose;
                                 // 监听socket错误信息

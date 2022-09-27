@@ -4,7 +4,6 @@ package top.youlanqiang.orderproject.core.controller;
 import com.google.code.kaptcha.impl.DefaultKaptcha;
 import top.youlanqiang.orderproject.core.entity.Result;
 import top.youlanqiang.orderproject.core.entity.User;
-import top.youlanqiang.orderproject.core.entity.enums.EmployeeType;
 import top.youlanqiang.orderproject.core.exception.UnmessageException;
 import top.youlanqiang.orderproject.core.service.UserService;
 import top.youlanqiang.orderproject.core.sms.SmsAuthentication;
@@ -13,7 +12,9 @@ import top.youlanqiang.orderproject.core.util.SecurityUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,7 +33,6 @@ import java.util.Random;
 
 
 @Controller
-@CrossOrigin
 @Api(tags = "路由")
 @Slf4j
 public class IndexController {
@@ -89,6 +89,7 @@ public class IndexController {
         }catch(UnmessageException e){
             return Result.error(e.getMessage());
         } catch (Exception e){
+            log.error(e.getMessage());
             return Result.error("登陆失败!");
         }
         return Result.success("登陆成功！");
@@ -116,6 +117,8 @@ public class IndexController {
             SecurityContextHolder.getContext().setAuthentication(authenticate);
             HttpSession session = request.getSession();
             session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext()); // 这个非常重要，否则验证后将无法登陆
+        }catch (BadCredentialsException e){
+            return Result.error("密码错误!");
         }catch (Exception e){
             e.printStackTrace();
             return Result.error("登陆失败!");
