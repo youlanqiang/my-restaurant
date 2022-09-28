@@ -45,10 +45,10 @@
                                           :name="item.id">
                             <el-form :inline="true" class="user-search">
                                 <el-form-item>
-                                    <el-button type="success">提醒服务员上菜</el-button>
+                                    <el-button @click="tipForWaiter" type="success">提醒服务员上菜</el-button>
                                 </el-form-item>
                                 <el-form-item>
-                                    <el-button type="primary">呼叫服务员</el-button>
+                                    <el-button @click="callWaiter" type="primary">呼叫服务员</el-button>
                                 </el-form-item>
                             </el-form>
                             <el-table highlight-current-row border :data="item.foods">
@@ -99,6 +99,18 @@
             activeName: []
         },
         methods: {
+            tipForWaiter:function (){
+                if(this.sock != null){
+                    var msg = {shopName:this.shopName, code:301}
+                    this.sock.send(JSON.stringify(msg))
+                }
+            },
+            callWaiter:function(){
+                if(this.sock != null){
+                    var msg = {shopName:this.shopName, code:302}
+                    this.sock.send(JSON.stringify(msg))
+                }
+            },
             getOrderInfo: function () {
                 $.ajax({
                     url: http + "/order/used-order",
@@ -149,7 +161,7 @@
                     this.sock.onmessage = this.sonMessage;
                 }
                 else {
-                    this.$message.error("抱歉，您的浏览器不支持websocket");
+                    this.$message.error("抱歉,您的浏览器不支持websocket");
                 }
             },
             initSock: function () {
@@ -161,7 +173,7 @@
                             app.shopName = req.data.shopName;
 
                             if ('WebSocket' in window) {
-                                app.sock = new WebSocket("ws://"+window.location.host+"/kitchen/" + this.shopName);
+                                app.sock = new WebSocket("ws://"+window.location.host+"/kitchen/" + app.shopName);
                                 app.sock.onopen = app.onOpen;
                                 app.sock.onclose = app.onClose;
                                 // 监听socket错误信息

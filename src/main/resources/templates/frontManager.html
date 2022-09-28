@@ -398,6 +398,7 @@
   var app = new Vue({
     el: '#app',
     data: {
+      shopName:"",
       onlineCode: "",
       showCreateTable: false,
       tempTable: {
@@ -450,6 +451,50 @@
       list: [],
     },
     methods: {
+      onError: function () {
+
+      },
+      onMessage: function (event) {
+        var obj = JSON.parse(event.data);
+        if (obj.code == 202) {
+          console.log('消息提示')
+            this.$notify({
+                title: '提示',
+                message: obj.msg,
+                duration: 0
+            });
+        }
+      },
+      onClose: function () {
+        this.$message.success("断连成功！");
+      },
+      onOpen: function () {
+        this.$message.success("连接成功！");
+      },
+      initSock:function(){
+        $.ajax({
+                    url: http + "/user/info",
+                    type: "get",
+                    success: function (req) {
+                        if (req.code == 200) {
+                            app.shopName = req.data.shopName;
+
+                            if ('WebSocket' in window) {
+                                app.sock = new WebSocket("ws://"+window.location.host+"/waiter/" + app.shopName);
+                                app.sock.onopen = app.onOpen;
+                                app.sock.onclose = app.onClose;
+                                // 监听socket错误信息
+                                app.sock.onerror = app.onError;
+                                // 监听socket消息
+                                app.sock.onmessage = app.onMessage;
+                            }
+                            else {
+                                app.$message.error("抱歉，您的浏览器不支持websocket");
+                            }
+                        }
+                    }
+                })
+      },
       releaseTable: function (tableId) {
         this.$confirm('是否散桌?', '提示', {
           confirmButtonText: '确定',
@@ -917,6 +962,7 @@
     mounted: function () {
       this.getTables();
       this.getFoodTable();
+      this.initSock();
     },
 
   })

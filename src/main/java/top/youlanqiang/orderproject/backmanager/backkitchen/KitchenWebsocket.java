@@ -2,6 +2,8 @@ package top.youlanqiang.orderproject.backmanager.backkitchen;
 
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+
 import top.youlanqiang.orderproject.core.entity.Result;
 import top.youlanqiang.orderproject.core.exception.UnmessageException;
 import lombok.extern.slf4j.Slf4j;
@@ -50,8 +52,19 @@ public class KitchenWebsocket {
 
     @OnMessage
     public void onMessage(String message, Session session) {
+        JSONObject result = JSON.parseObject(message);
+        log.info("shopName:{} 接受消息:{}",shopName, result.toJSONString());
+        String shopName = result.getString("shopName");
+        Integer code = result.getInteger("code");
+        if(code == 301){
+            WaiterWebsocket.sendMessage(shopName, Result.wsMsg("后厨通知服务员上菜"));
+            return;
+        }
+        if(code == 302){
+            WaiterWebsocket.sendMessage(shopName, Result.wsMsg("后厨呼叫服务员"));
+            return;
+        }
 
-        log.info("接受消息:{}", message);
     }
 
     @OnClose
