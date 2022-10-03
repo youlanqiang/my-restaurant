@@ -149,8 +149,7 @@ public class UserController {
 
 
     public String getShopName(){
-        User user = userService.getUserByName(SecurityUtil.getUserName());
-        return user.getShopName();
+        return SecurityUtil.getShopName();
     }
 
 }

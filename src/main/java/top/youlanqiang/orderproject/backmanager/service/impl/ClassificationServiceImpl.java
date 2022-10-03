@@ -9,6 +9,8 @@ import top.youlanqiang.orderproject.core.entity.Classification;
 import top.youlanqiang.orderproject.core.exception.UnmessageException;
 import top.youlanqiang.orderproject.core.mapper.ClassificationMapper;
 import top.youlanqiang.orderproject.core.mapper.FoodClassMapper;
+import top.youlanqiang.orderproject.core.util.SecurityUtil;
+
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -29,7 +31,7 @@ public class ClassificationServiceImpl implements ClassificationService {
     @Override
     public boolean addClassification(Classification classification) {
         String name = classification.getName();
-        if (classificationMapper.checkNameIsCreated(name)) {
+        if (classificationMapper.checkNameIsCreated(name, SecurityUtil.getShopName())) {
             throw new UnmessageException("名称已经创建！");
         }
         return classificationMapper.insert(classification) == 1;

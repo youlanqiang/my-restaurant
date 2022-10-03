@@ -9,6 +9,8 @@ import top.youlanqiang.orderproject.core.exception.UnmessageException;
 import top.youlanqiang.orderproject.core.mapper.ClassificationMapper;
 import top.youlanqiang.orderproject.core.mapper.FoodClassMapper;
 import top.youlanqiang.orderproject.core.mapper.FoodMapper;
+import top.youlanqiang.orderproject.core.util.SecurityUtil;
+
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -47,7 +49,8 @@ public class FoodServiceImpl implements FoodService {
 
     @Override
     public boolean addFood(Food food) {
-        if(foodMapper.checkFoodNameCreated(food.getFoodName())){
+        
+        if(foodMapper.checkFoodNameCreated(food.getFoodName(), SecurityUtil.getShopName())){
             throw new UnmessageException("菜品名称已经存在！");
         }
         if(food.getDiscount().equals(BigDecimal.ZERO)){

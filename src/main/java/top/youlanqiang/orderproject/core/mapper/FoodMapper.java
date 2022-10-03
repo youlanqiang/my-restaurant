@@ -12,8 +12,8 @@ import java.util.List;
 @Repository
 public interface FoodMapper extends BaseMapper<Food> {
 
-    @Select("SELECT COUNT(*) FROM food WHERE food_name = #{name}")
-    boolean checkFoodNameCreated(String foodName);
+    @Select("SELECT COUNT(*) FROM food WHERE food_name = #{name} AND shop_name = #{shopName}")
+    boolean checkFoodNameCreated(@Param("name") String foodName, @Param("shopName") String shopName);
 
 
     List<Food>  selectFoodsByCid(Integer cid);

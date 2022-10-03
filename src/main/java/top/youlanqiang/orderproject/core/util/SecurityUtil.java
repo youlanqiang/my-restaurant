@@ -6,6 +6,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import top.youlanqiang.orderproject.core.entity.User;
+
 import java.security.Principal;
 import java.util.Collection;
 
@@ -51,6 +53,18 @@ public class SecurityUtil {
             return ((Principal) principal).getName();
 
         }
+        return String.valueOf(principal);
+    }
+
+    public static String getShopName(){
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (principal instanceof User) {
+
+            return ((User) principal).getShopName();
+
+        }
+
         return String.valueOf(principal);
     }
 
